@@ -366,27 +366,13 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
   const [showHearts, setShowHearts] = useState(false);
   const [musicEnabled, setMusicEnabled] = useState(false);
   const [musicUrl, setMusicUrl] = useState('');
-  const [youTubeId, setYouTubeId] = useState('');
   const musicRef = useRef(null);
-
-  useEffect(() => {
-    if (musicUrl && (musicUrl.includes('youtube.com') || musicUrl.includes('youtu.be'))) {
-      const match = musicUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
-      if (match && match[1]) {
-        setYouTubeId(match[1]);
-      }
-    } else {
-      setYouTubeId('');
-    }
-  }, [musicUrl]);
 
   useEffect(() => {
     if (isSharedView && sharedMusic) {
       setMusicUrl(sharedMusic);
       setMusicEnabled(true);
-      if (sharedMusic && sharedMusic.includes('youtube')) {
-        // YouTube se maneja diferente
-      } else if (sharedMusic) {
+      if (sharedMusic) {
         musicRef.current = new Audio(sharedMusic);
         musicRef.current.loop = true;
         musicRef.current.volume = 0.3;
@@ -418,10 +404,7 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
   };
 
   const toggleMusic = useCallback(() => {
-    if (youTubeId) {
-      window.open(`https://www.youtube.com/watch?v=${youTubeId}&autoplay=1`, '_blank');
-      setMusicEnabled(true);
-    } else if (!musicRef.current && musicUrl) {
+    if (!musicRef.current && musicUrl) {
       musicRef.current = new Audio(musicUrl);
       musicRef.current.loop = true;
       musicRef.current.volume = 0.3;
@@ -435,7 +418,7 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
       }
     }
     setMusicEnabled(!musicEnabled);
-  }, [musicEnabled, musicUrl, youTubeId]);
+  }, [musicEnabled, musicUrl]);
 
   const planetMemories = memories.slice(1);
   const planetPositions = useMemo(() => generatePlanetPositions(planetMemories), [planetMemories]);
@@ -985,7 +968,7 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
           
           <input
             type="text"
-            placeholder="YouTube o enlace de música..."
+            placeholder="Enlace de música..."
             value={musicUrl.startsWith('http') ? musicUrl : ''}
             onChange={(e) => setMusicUrl(e.target.value)}
             className="fixed bottom-20 left-32 z-40 px-2 py-2 rounded-lg glass-panel text-xs text-white w-40 placeholder-white/30"
