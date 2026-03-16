@@ -541,10 +541,12 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
   }, [memories]);
 
   const copyShareLink = useCallback(() => {
+    const musicToShare = musicUrl && musicUrl.startsWith('http') ? musicUrl : null;
     const shareData = {
       type: 'cosmic-memories',
       version: '1.0',
       title: universeTitle || 'Mi Universo de Recuerdos',
+      music: musicToShare,
       memories: memories.map(m => ({ 
         title: m.title, 
         date: m.date, 
@@ -560,7 +562,7 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
     navigator.clipboard.writeText(link);
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
-  }, [memories, universeTitle]);
+  }, [memories, universeTitle, musicUrl]);
 
   const romanticQuotes = [
     "Cada estrella representa un momento contigo",
@@ -793,7 +795,7 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
             )}
 
             <p className="text-center text-white/40 text-xs mt-3">
-              La música no se comparte. La otra persona deberá subir la suya.
+              La música local no se comparte. Usa un enlace para compartirla.
             </p>
           </motion.div>
         </motion.div>
@@ -947,8 +949,26 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
             htmlFor="music-upload"
             className="fixed bottom-20 left-6 z-40 px-3 py-2 rounded-lg glass-panel text-xs text-white/60 cursor-pointer hover:text-white"
           >
-            {musicUrl ? '✓ Música cargada' : '🎵 Subir música'}
+            {musicUrl && !musicUrl.startsWith('http') ? '✓ Música cargada' : '🎵 Subir música'}
           </label>
+          
+          {musicUrl && !musicUrl.startsWith('http') && (
+            <button
+              onClick={() => setMusicUrl('')}
+              className="fixed bottom-20 left-36 z-40 px-2 py-2 rounded-lg glass-panel text-xs text-white/40 cursor-pointer hover:text-white"
+            >
+              ✕
+            </button>
+          )}
+          
+          <input
+            type="text"
+            placeholder="O pega un enlace de música..."
+            value={musicUrl.startsWith('http') ? musicUrl : ''}
+            onChange={(e) => setMusicUrl(e.target.value)}
+            className="fixed bottom-20 left-32 z-40 px-2 py-2 rounded-lg glass-panel text-xs text-white w-32 placeholder-white/30"
+            style={{ background: 'rgba(255,255,255,0.1)' }}
+          />
         </>
       )}
 
