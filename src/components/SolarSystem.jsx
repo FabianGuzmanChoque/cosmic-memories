@@ -375,23 +375,7 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
   useEffect(() => {
     if (isSharedView && sharedMusic) {
       setMusicUrl(sharedMusic);
-      if (sharedMusic.includes('youtube')) {
-        setMusicEnabled(true);
-      } else if (sharedMusic.includes('spotify')) {
-        setMusicEnabled(true);
-      } else {
-        // Direct MP3
-        setTimeout(() => {
-          musicRef.current = new Audio(sharedMusic);
-          musicRef.current.loop = true;
-          musicRef.current.volume = 0.3;
-          musicRef.current.play().then(() => {
-            setMusicEnabled(true);
-          }).catch(() => {
-            setMusicEnabled(true);
-          });
-        }, 1000);
-      }
+      // Don't autoplay - user must click to play
     } else if (!isSharedView) {
       const savedMusic = localStorage.getItem('cosmic-music');
       if (savedMusic) {
@@ -403,10 +387,8 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
             musicRef.current.volume = 0.3;
             musicRef.current.play().then(() => {
               setMusicEnabled(true);
-            }).catch(() => {
-              setMusicEnabled(true);
-            });
-          }, 1000);
+            }).catch(() => {});
+          }, 500);
         }
       }
     }
