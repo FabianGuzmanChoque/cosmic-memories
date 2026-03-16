@@ -956,12 +956,13 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
         </motion.button>
       )}
 
-      {musicEnabled && (musicUrl?.includes('spotify') || sharedMusic?.includes('spotify')) && (
-        (() => {
-          let url = (musicUrl || sharedMusic).split('?')[0];
-          url = url.replace('/intl-es/', '/');
-          if (!url.includes('/embed/')) {
-            url = url.replace('open.spotify.com/', 'open.spotify.com/embed/').replace('/track/', '/embed/track/');
+      {musicEnabled && (musicUrl?.includes('spotify') || sharedMusic?.includes('spotify')) && (() => {
+          let url = (musicUrl || sharedMusic);
+          if (url.includes('spotify.com')) {
+            const match = url.match(/track\/([a-zA-Z0-9]+)/);
+            if (match && match[1]) {
+              url = `https://open.spotify.com/embed/track/${match[1]}`;
+            }
           }
           return (
             <iframe
@@ -973,8 +974,7 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
               title="Spotify"
             />
           );
-        })()
-      )}
+        })()}
 
       {!isSharedView && (
         <>
