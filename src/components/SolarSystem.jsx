@@ -375,27 +375,49 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
   useEffect(() => {
     if (isSharedView && sharedMusic) {
       setMusicUrl(sharedMusic);
+      setMusicEnabled(true);
       if (sharedMusic.includes('youtube')) {
-        setMusicEnabled(true);
+        // YouTube opens in new tab
       } else if (sharedMusic.includes('spotify')) {
-        setMusicEnabled(true);
+        // Spotify shows embed
       } else {
-        musicRef.current = new Audio(sharedMusic);
-        musicRef.current.loop = true;
-        musicRef.current.volume = 0.3;
-        musicRef.current.play().catch(() => {});
-        setMusicEnabled(true);
+        // Direct MP3 - autoplay
+        setTimeout(() => {
+          musicRef.current = new Audio(sharedMusic);
+          musicRef.current.loop = true;
+          musicRef.current.volume = 0.3;
+          musicRef.current.play().catch(() => {});
+        }, 500);
       }
     } else if (!isSharedView) {
       const savedMusic = localStorage.getItem('cosmic-music');
       if (savedMusic) {
         setMusicUrl(savedMusic);
-        if (savedMusic.includes('spotify')) {
-          setMusicEnabled(true);
+        if (savedMusic.includes('.mp3') || savedMusic.includes('audio')) {
+          setTimeout(() => {
+            musicRef.current = new Audio(savedMusic);
+            musicRef.current.loop = true;
+            musicRef.current.volume = 0.3;
+            musicRef.current.play().catch(() => {});
+          }, 500);
         }
       }
     }
   }, [isSharedView, sharedMusic]);
+
+  useEffect(() => {
+    if (musicUrl && (musicUrl.includes('.mp3') || musicUrl.includes('audio'))) {
+      setTimeout(() => {
+        if (!musicRef.current) {
+          musicRef.current = new Audio(musicUrl);
+          musicRef.current.loop = true;
+          musicRef.current.volume = 0.3;
+        }
+        musicRef.current.play().catch(() => {});
+        setMusicEnabled(true);
+      }, 300);
+    }
+  }, [musicUrl]);
 
   const toggleMusic = useCallback(() => {
     const musicLink = musicUrl || sharedMusic;
