@@ -375,19 +375,22 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
   useEffect(() => {
     if (isSharedView && sharedMusic) {
       setMusicUrl(sharedMusic);
-      setMusicEnabled(true);
       if (sharedMusic.includes('youtube')) {
-        // YouTube opens in new tab
+        setMusicEnabled(true);
       } else if (sharedMusic.includes('spotify')) {
-        // Spotify shows embed
+        setMusicEnabled(true);
       } else {
-        // Direct MP3 - autoplay
+        // Direct MP3
         setTimeout(() => {
           musicRef.current = new Audio(sharedMusic);
           musicRef.current.loop = true;
           musicRef.current.volume = 0.3;
-          musicRef.current.play().catch(() => {});
-        }, 500);
+          musicRef.current.play().then(() => {
+            setMusicEnabled(true);
+          }).catch(() => {
+            setMusicEnabled(true);
+          });
+        }, 1000);
       }
     } else if (!isSharedView) {
       const savedMusic = localStorage.getItem('cosmic-music');
@@ -398,26 +401,31 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
             musicRef.current = new Audio(savedMusic);
             musicRef.current.loop = true;
             musicRef.current.volume = 0.3;
-            musicRef.current.play().catch(() => {});
-          }, 500);
+            musicRef.current.play().then(() => {
+              setMusicEnabled(true);
+            }).catch(() => {
+              setMusicEnabled(true);
+            });
+          }, 1000);
         }
       }
     }
   }, [isSharedView, sharedMusic]);
 
   useEffect(() => {
-    if (musicUrl && (musicUrl.includes('.mp3') || musicUrl.includes('audio'))) {
+    if (!isSharedView && musicUrl && (musicUrl.includes('.mp3') || musicUrl.includes('audio'))) {
       setTimeout(() => {
         if (!musicRef.current) {
           musicRef.current = new Audio(musicUrl);
           musicRef.current.loop = true;
           musicRef.current.volume = 0.3;
         }
-        musicRef.current.play().catch(() => {});
-        setMusicEnabled(true);
-      }, 300);
+        musicRef.current.play().then(() => {
+          setMusicEnabled(true);
+        }).catch(() => {});
+      }, 500);
     }
-  }, [musicUrl]);
+  }, [musicUrl, isSharedView]);
 
   const toggleMusic = useCallback(() => {
     const musicLink = musicUrl || sharedMusic;
