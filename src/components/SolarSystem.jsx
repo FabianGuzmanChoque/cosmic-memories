@@ -393,11 +393,19 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
   }, [isSharedView, sharedMusic]);
 
   const toggleMusic = useCallback(() => {
-    if (musicUrl.includes('youtube') || (sharedMusic && sharedMusic.includes('youtube'))) {
-      const ytUrl = musicUrl || sharedMusic;
-      const videoId = ytUrl.split('v=')[1]?.split('&')[0] || ytUrl.split('/').pop();
+    const musicLink = musicUrl || sharedMusic;
+    
+    if (!musicLink) return;
+    
+    if (musicLink.includes('youtube') || musicLink.includes('youtu.be')) {
+      const videoId = musicLink.split('v=')[1]?.split('&')[0] || musicLink.split('/').pop();
       window.open(`https://www.youtube.com/watch?v=${videoId}&autoplay=1`, '_blank');
       setMusicEnabled(true);
+      return;
+    }
+    
+    if (musicLink.includes('spotify')) {
+      setMusicEnabled(!musicEnabled);
       return;
     }
     
@@ -407,9 +415,8 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
       } else {
         musicRef.current.play().catch(() => {});
       }
-    } else if (musicUrl || sharedMusic) {
-      const url = musicUrl || sharedMusic;
-      musicRef.current = new Audio(url);
+    } else {
+      musicRef.current = new Audio(musicLink);
       musicRef.current.loop = true;
       musicRef.current.volume = 0.3;
       musicRef.current.play().catch(() => {});
@@ -947,6 +954,17 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
             <VolumeX className="w-5 h-5 text-white/60" />
           )}
         </motion.button>
+      )}
+
+      {musicEnabled && (musicUrl?.includes('spotify') || sharedMusic?.includes('spotify')) && (
+        <iframe
+          style={{ position: 'fixed', bottom: 80, left: 6, borderRadius: 12 }}
+          src={(musicUrl || sharedMusic).replace('open.spotify.com/', 'open.spotify.com/embed/')}
+          width="200"
+          height="80"
+          allow="autoplay; encrypted-media"
+          title="Spotify"
+        />
       )}
 
       {!isSharedView && (
