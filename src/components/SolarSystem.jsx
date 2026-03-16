@@ -366,20 +366,32 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
   const [showHearts, setShowHearts] = useState(false);
   const [musicEnabled, setMusicEnabled] = useState(false);
   const [musicUrl, setMusicUrl] = useState('');
-  const [showWelcome, setShowWelcome] = useState(true);
-  const [showGallery, setShowGallery] = useState(false);
-  const [deletingPlanet, setDeletingPlanet] = useState(null);
-  const [deletingIds, setDeletingIds] = useState(new Set());
+  const [youTubeId, setYouTubeId] = useState('');
   const musicRef = useRef(null);
+
+  useEffect(() => {
+    if (musicUrl.includes('youtube.com') || musicUrl.includes('youtu.be')) {
+      const match = musicUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
+      if (match && match[1]) {
+        setYouTubeId(match[1]);
+      }
+    } else {
+      setYouTubeId('');
+    }
+  }, [musicUrl]);
 
   useEffect(() => {
     if (isSharedView && sharedMusic) {
       setMusicUrl(sharedMusic);
       setMusicEnabled(true);
-      musicRef.current = new Audio(sharedMusic);
-      musicRef.current.loop = true;
-      musicRef.current.volume = 0.3;
-      musicRef.current.play().catch(() => {});
+      if (sharedMusic.includes('youtube')) {
+        // YouTube se maneja diferente
+      } else {
+        musicRef.current = new Audio(sharedMusic);
+        musicRef.current.loop = true;
+        musicRef.current.volume = 0.3;
+        musicRef.current.play().catch(() => {});
+      }
     } else if (!isSharedView) {
       const savedMusic = localStorage.getItem('cosmic-music');
       if (savedMusic) {
@@ -795,7 +807,7 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
             )}
 
             <p className="text-center text-white/40 text-xs mt-3">
-              Usa enlaces externos para compartir imágenes y música.
+              Las imágenes se comparten. YouTube y enlaces directos funcionan para música.
             </p>
           </motion.div>
         </motion.div>
@@ -970,13 +982,22 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
           
           <input
             type="text"
-            placeholder="O pega un enlace de música..."
+            placeholder="YouTube o enlace de música..."
             value={musicUrl.startsWith('http') ? musicUrl : ''}
             onChange={(e) => setMusicUrl(e.target.value)}
-            className="fixed bottom-20 left-32 z-40 px-2 py-2 rounded-lg glass-panel text-xs text-white w-32 placeholder-white/30"
+            className="fixed bottom-20 left-32 z-40 px-2 py-2 rounded-lg glass-panel text-xs text-white w-40 placeholder-white/30"
             style={{ background: 'rgba(255,255,255,0.1)' }}
           />
         </>
+      )}
+
+      {youTubeId && musicEnabled && (
+        <iframe
+          style={{ display: 'none' }}
+          src={`https://www.youtube.com/embed/${youTubeId}?autoplay=1&loop=1&playlist=${youTubeId}`}
+          allow="autoplay; encrypted-media"
+          title="YouTube"
+        />
       )}
 
       {showGallery && (
