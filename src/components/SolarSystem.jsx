@@ -410,6 +410,17 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
     setMusicEnabled(!musicEnabled);
   }, [musicEnabled, musicUrl]);
 
+  const handleMusicUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setMusicUrl(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const planetMemories = memories.slice(1);
   const planetPositions = useMemo(() => generatePlanetPositions(planetMemories), [planetMemories]);
   
