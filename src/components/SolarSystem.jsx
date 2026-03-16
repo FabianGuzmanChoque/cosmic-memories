@@ -418,7 +418,10 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
   };
 
   const toggleMusic = useCallback(() => {
-    if (!musicRef.current && musicUrl) {
+    if (youTubeId) {
+      window.open(`https://www.youtube.com/watch?v=${youTubeId}&autoplay=1`, '_blank');
+      setMusicEnabled(true);
+    } else if (!musicRef.current && musicUrl) {
       musicRef.current = new Audio(musicUrl);
       musicRef.current.loop = true;
       musicRef.current.volume = 0.3;
@@ -432,7 +435,7 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
       }
     }
     setMusicEnabled(!musicEnabled);
-  }, [musicEnabled, musicUrl]);
+  }, [musicEnabled, musicUrl, youTubeId]);
 
   const planetMemories = memories.slice(1);
   const planetPositions = useMemo(() => generatePlanetPositions(planetMemories), [planetMemories]);
@@ -989,16 +992,6 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
             style={{ background: 'rgba(255,255,255,0.1)' }}
           />
         </>
-      )}
-
-      {youTubeId && musicEnabled && (
-        <div style={{ position: 'absolute', width: 0, height: 0 }}>
-          <iframe
-            src={`https://www.youtube.com/embed/${youTubeId}?autoplay=1&loop=1&playlist=${youTubeId}&enablejsapi=1`}
-            allow="autoplay; encrypted-media"
-            title="YouTube"
-          />
-        </div>
       )}
 
       {showGallery && (
