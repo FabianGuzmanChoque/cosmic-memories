@@ -929,16 +929,7 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
             <VolumeX className="w-5 h-5 text-white/60" />
           )}
         </motion.button>
-
-        {musicEnabled && musicUrl.includes('youtube') && (
-          <iframe
-            ref={youTubeRef}
-            style={{ position: 'absolute', width: 0, height: 0, border: 0 }}
-            src={`https://www.youtube.com/embed/${musicUrl.split('v=')[1]?.split('&')[0]}?autoplay=1&loop=1&playlist=${musicUrl.split('v=')[1]?.split('&')[0]}`}
-            allow="autoplay; encrypted-media"
-            title="YouTube"
-          />
-        )}
+      )}
 
       {!isSharedView && (
         <>
