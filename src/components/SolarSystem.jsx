@@ -377,6 +377,8 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
       setMusicUrl(sharedMusic);
       if (sharedMusic.includes('youtube')) {
         setMusicEnabled(true);
+      } else if (sharedMusic.includes('spotify')) {
+        setMusicEnabled(true);
       } else {
         musicRef.current = new Audio(sharedMusic);
         musicRef.current.loop = true;
@@ -388,6 +390,9 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
       const savedMusic = localStorage.getItem('cosmic-music');
       if (savedMusic) {
         setMusicUrl(savedMusic);
+        if (savedMusic.includes('spotify')) {
+          setMusicEnabled(true);
+        }
       }
     }
   }, [isSharedView, sharedMusic]);
@@ -979,34 +984,16 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
       {!isSharedView && (
         <>
           <input
-            type="file"
-            accept="audio/*"
-            onChange={handleMusicUpload}
-            className="hidden"
-            id="music-upload"
-          />
-          <label 
-            htmlFor="music-upload"
-            className="fixed bottom-20 left-6 z-40 px-3 py-2 rounded-lg glass-panel text-xs text-white/60 cursor-pointer hover:text-white"
-          >
-            {musicUrl && !musicUrl.startsWith('http') ? '✓ Música cargada' : '🎵 Subir música'}
-          </label>
-          
-          {musicUrl && !musicUrl.startsWith('http') && (
-            <button
-              onClick={() => setMusicUrl('')}
-              className="fixed bottom-20 left-36 z-40 px-2 py-2 rounded-lg glass-panel text-xs text-white/40 cursor-pointer hover:text-white"
-            >
-              ✕
-            </button>
-          )}
-          
-          <input
             type="text"
-            placeholder="Enlace de música..."
+            placeholder="Enlace de Spotify..."
             value={musicUrl.startsWith('http') ? musicUrl : ''}
-            onChange={(e) => setMusicUrl(e.target.value)}
-            className="fixed bottom-20 left-32 z-40 px-2 py-2 rounded-lg glass-panel text-xs text-white w-40 placeholder-white/30"
+            onChange={(e) => {
+              setMusicUrl(e.target.value);
+              if (e.target.value.includes('spotify')) {
+                setMusicEnabled(true);
+              }
+            }}
+            className="fixed bottom-20 left-6 z-40 px-3 py-2 rounded-lg glass-panel text-xs text-white w-48 placeholder-white/30"
             style={{ background: 'rgba(255,255,255,0.1)' }}
           />
         </>
