@@ -992,12 +992,13 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
       )}
 
       {youTubeId && musicEnabled && (
-        <iframe
-          style={{ display: 'none' }}
-          src={`https://www.youtube.com/embed/${youTubeId}?autoplay=1&loop=1&playlist=${youTubeId}`}
-          allow="autoplay; encrypted-media"
-          title="YouTube"
-        />
+        <div style={{ position: 'absolute', width: 0, height: 0 }}>
+          <iframe
+            src={`https://www.youtube.com/embed/${youTubeId}?autoplay=1&loop=1&playlist=${youTubeId}&enablejsapi=1`}
+            allow="autoplay; encrypted-media"
+            title="YouTube"
+          />
+        </div>
       )}
 
       {showGallery && (
