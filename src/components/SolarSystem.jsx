@@ -371,16 +371,19 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
   const [deletingPlanet, setDeletingPlanet] = useState(null);
   const [deletingIds, setDeletingIds] = useState(new Set());
   const musicRef = useRef(null);
+  const youTubeRef = useRef(null);
 
   useEffect(() => {
     if (isSharedView && sharedMusic) {
       setMusicUrl(sharedMusic);
-      setMusicEnabled(true);
-      if (sharedMusic) {
+      if (sharedMusic.includes('youtube')) {
+        setMusicEnabled(true);
+      } else {
         musicRef.current = new Audio(sharedMusic);
         musicRef.current.loop = true;
         musicRef.current.volume = 0.3;
         musicRef.current.play().catch(() => {});
+        setMusicEnabled(true);
       }
     } else if (!isSharedView) {
       const savedMusic = localStorage.getItem('cosmic-music');
@@ -390,28 +393,11 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
     }
   }, [isSharedView, sharedMusic]);
 
-  useEffect(() => {
-    if (!isSharedView && musicUrl) {
-      localStorage.setItem('cosmic-music', musicUrl);
-    }
-  }, [musicUrl, isSharedView]);
-
-  const handleMusicUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setMusicUrl(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
   const toggleMusic = useCallback(() => {
-    if (!musicRef.current && musicUrl) {
-      musicRef.current = new Audio(musicUrl);
-      musicRef.current.loop = true;
-      musicRef.current.volume = 0.3;
+    if (musicUrl.includes('youtube')) {
+      if (youTubeRef.current) {
+        youTubeRef.current.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+      }
     }
     
     if (musicRef.current) {
@@ -943,7 +929,16 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
             <VolumeX className="w-5 h-5 text-white/60" />
           )}
         </motion.button>
-      )}
+
+        {musicEnabled && musicUrl.includes('youtube') && (
+          <iframe
+            ref={youTubeRef}
+            style={{ position: 'absolute', width: 0, height: 0, border: 0 }}
+            src={`https://www.youtube.com/embed/${musicUrl.split('v=')[1]?.split('&')[0]}?autoplay=1&loop=1&playlist=${musicUrl.split('v=')[1]?.split('&')[0]}`}
+            allow="autoplay; encrypted-media"
+            title="YouTube"
+          />
+        )}
 
       {!isSharedView && (
         <>
