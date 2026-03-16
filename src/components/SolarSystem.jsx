@@ -374,9 +374,12 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
 
   useEffect(() => {
     if (isSharedView && sharedMusic) {
+      // En vista compartida, usar solo la música compartida
       setMusicUrl(sharedMusic);
+      setMusicEnabled(false);
       // Don't autoplay - user must click to play
     } else if (!isSharedView) {
+      // En vista normal, usar música guardada localmente
       const savedMusic = localStorage.getItem('cosmic-music');
       if (savedMusic) {
         setMusicUrl(savedMusic);
