@@ -553,7 +553,8 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
         message: m.message,
         orbitRadius: m.orbitRadius,
         orbitAngle: m.orbitAngle,
-        color: m.color
+        color: m.color,
+        image: m.image?.startsWith('http') ? m.image : null
       }))
     };
     const encoded = btoa(encodeURIComponent(JSON.stringify(shareData)));
@@ -794,7 +795,7 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
             )}
 
             <p className="text-center text-white/40 text-xs mt-3">
-              Las imágenes y música local no se comparten. Usa enlaces externos para compartir música.
+              Usa enlaces externos para compartir imágenes y música.
             </p>
           </motion.div>
         </motion.div>
@@ -852,9 +853,16 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
                   htmlFor="img-upload2" 
                   className="block w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white/60 text-sm text-center cursor-pointer hover:bg-white/10 transition-all"
                 >
-                  {newMemory.image ? '✓ Imagen cargada' : '📷 Subir imagen'}
+                  {newMemory.image && !newMemory.image.startsWith('http') ? '✓ Imagen cargada' : '📷 Subir imagen'}
                 </label>
               </div>
+              <input
+                type="text"
+                placeholder="O pega un enlace de imagen..."
+                value={newMemory.image?.startsWith('http') ? newMemory.image : ''}
+                onChange={(e) => setNewMemory(prev => ({ ...prev, image: e.target.value }))}
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder-white/30"
+              />
               <motion.button 
                 type="submit" 
                 className="w-full py-3 rounded-xl text-white font-medium flex items-center justify-center gap-2"
