@@ -370,7 +370,7 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
   const musicRef = useRef(null);
 
   useEffect(() => {
-    if (musicUrl.includes('youtube.com') || musicUrl.includes('youtu.be')) {
+    if (musicUrl && (musicUrl.includes('youtube.com') || musicUrl.includes('youtu.be'))) {
       const match = musicUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
       if (match && match[1]) {
         setYouTubeId(match[1]);
@@ -384,9 +384,9 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
     if (isSharedView && sharedMusic) {
       setMusicUrl(sharedMusic);
       setMusicEnabled(true);
-      if (sharedMusic.includes('youtube')) {
+      if (sharedMusic && sharedMusic.includes('youtube')) {
         // YouTube se maneja diferente
-      } else {
+      } else if (sharedMusic) {
         musicRef.current = new Audio(sharedMusic);
         musicRef.current.loop = true;
         musicRef.current.volume = 0.3;
