@@ -366,6 +366,8 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
   const [showHearts, setShowHearts] = useState(false);
   const [musicEnabled, setMusicEnabled] = useState(false);
   const [musicUrl, setMusicUrl] = useState('');
+  const [deletingPlanet, setDeletingPlanet] = useState(null);
+  const [deletingIds, setDeletingIds] = useState(new Set());
   const musicRef = useRef(null);
 
   useEffect(() => {
