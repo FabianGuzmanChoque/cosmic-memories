@@ -545,7 +545,6 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
       type: 'cosmic-memories',
       version: '1.0',
       title: universeTitle || 'Mi Universo de Recuerdos',
-      music: musicUrl || null,
       memories: memories.map(m => ({ 
         title: m.title, 
         date: m.date, 
@@ -561,7 +560,7 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
     navigator.clipboard.writeText(link);
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
-  }, [memories, universeTitle, musicUrl]);
+  }, [memories, universeTitle]);
 
   const romanticQuotes = [
     "Cada estrella representa un momento contigo",
@@ -792,6 +791,10 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
                 Comparte este enlace con tu persona especial
               </motion.p>
             )}
+
+            <p className="text-center text-white/40 text-xs mt-3">
+              La música no se comparte. La otra persona deberá subir la suya.
+            </p>
           </motion.div>
         </motion.div>
       )}
