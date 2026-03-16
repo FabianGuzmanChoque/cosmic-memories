@@ -961,7 +961,7 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
           if (url.includes('spotify.com')) {
             const match = url.match(/track\/([a-zA-Z0-9]+)/);
             if (match && match[1]) {
-              url = `https://open.spotify.com/embed/track/${match[1]}`;
+              url = `https://open.spotify.com/embed/track/${match[1]}?autoplay=1`;
             }
           }
           return (
