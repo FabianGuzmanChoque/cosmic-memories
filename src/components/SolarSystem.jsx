@@ -553,8 +553,7 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
         message: m.message,
         orbitRadius: m.orbitRadius,
         orbitAngle: m.orbitAngle,
-        color: m.color,
-        image: m.image || null
+        color: m.color
       }))
     };
     const encoded = btoa(encodeURIComponent(JSON.stringify(shareData)));
@@ -795,7 +794,7 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
             )}
 
             <p className="text-center text-white/40 text-xs mt-3">
-              La música local no se comparte. Usa un enlace para compartirla.
+              Las imágenes y música local no se comparten. Usa enlaces externos para compartir música.
             </p>
           </motion.div>
         </motion.div>
