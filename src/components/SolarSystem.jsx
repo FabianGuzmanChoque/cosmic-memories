@@ -371,7 +371,6 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
   const [deletingPlanet, setDeletingPlanet] = useState(null);
   const [deletingIds, setDeletingIds] = useState(new Set());
   const musicRef = useRef(null);
-  const youTubeRef = useRef(null);
 
   useEffect(() => {
     if (isSharedView && sharedMusic) {
@@ -394,10 +393,12 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
   }, [isSharedView, sharedMusic]);
 
   const toggleMusic = useCallback(() => {
-    if (musicUrl.includes('youtube')) {
-      if (youTubeRef.current) {
-        youTubeRef.current.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
-      }
+    if (musicUrl.includes('youtube') || (sharedMusic && sharedMusic.includes('youtube'))) {
+      const ytUrl = musicUrl || sharedMusic;
+      const videoId = ytUrl.split('v=')[1]?.split('&')[0] || ytUrl.split('/').pop();
+      window.open(`https://www.youtube.com/watch?v=${videoId}&autoplay=1`, '_blank');
+      setMusicEnabled(true);
+      return;
     }
     
     if (musicRef.current) {
@@ -406,9 +407,15 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
       } else {
         musicRef.current.play().catch(() => {});
       }
+    } else if (musicUrl || sharedMusic) {
+      const url = musicUrl || sharedMusic;
+      musicRef.current = new Audio(url);
+      musicRef.current.loop = true;
+      musicRef.current.volume = 0.3;
+      musicRef.current.play().catch(() => {});
     }
     setMusicEnabled(!musicEnabled);
-  }, [musicEnabled, musicUrl]);
+  }, [musicEnabled, musicUrl, sharedMusic]);
 
   const handleMusicUpload = (e) => {
     const file = e.target.files[0];
