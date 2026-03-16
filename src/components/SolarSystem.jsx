@@ -961,7 +961,7 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
         </motion.button>
       )}
 
-      {musicEnabled && (musicUrl?.includes('spotify') || sharedMusic?.includes('spotify')) && (() => {
+      {(musicUrl?.includes('spotify') || sharedMusic?.includes('spotify')) && (() => {
           let url = (musicUrl || sharedMusic);
           if (url.includes('spotify.com')) {
             const match = url.match(/track\/([a-zA-Z0-9]+)/);
@@ -971,7 +971,7 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
           }
           return (
             <iframe
-              style={{ position: 'fixed', bottom: 80, left: 6, borderRadius: 12 }}
+              style={{ position: 'fixed', bottom: 80, left: 6, borderRadius: 12, opacity: musicEnabled ? 1 : 0.3 }}
               src={url}
               width="200"
               height="80"
