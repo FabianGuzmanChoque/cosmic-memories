@@ -227,7 +227,7 @@ function Sun({ onClick }) {
   );
 }
 
-function Planet({ position, color, onClick, image, orbitRadius, onDragStart, onDragEnd, onMoveLeft, onMoveRight }) {
+function Planet({ position, color, onClick, image, orbitRadius, onDragStart, onDragEnd, onMoveLeft, onMoveRight, isSharedView }) {
   const ref = useRef();
   const glowRef = useRef();
   const ringRef = useRef();
@@ -369,16 +369,18 @@ function Planet({ position, color, onClick, image, orbitRadius, onDragStart, onD
           <meshBasicMaterial color="#ffffff" transparent opacity={0.5} />
         </mesh>
       )}
-      <mesh 
-        position={[0, 0, 1.1]}
-        onClick={(e) => {
-          e.stopPropagation();
-          onClick();
-        }}
-      >
-        <sphereGeometry args={[0.15, 16, 16]} />
-        <meshBasicMaterial color="#ffffff" transparent opacity={0.7} />
-      </mesh>
+      {!isSharedView && (
+        <mesh 
+          position={[0, 0, 1.1]}
+          onClick={(e) => {
+            e.stopPropagation();
+            onClick();
+          }}
+        >
+          <sphereGeometry args={[0.15, 16, 16]} />
+          <meshBasicMaterial color="#ffffff" transparent opacity={0.7} />
+        </mesh>
+      )}
     </group>
   );
 }
@@ -775,6 +777,7 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
               image={memory.image}
               orbitRadius={memory.orbitRadius}
               onClick={() => handlePlanetClick(memory)}
+              isSharedView={isSharedView}
               onDragStart={!isSharedView ? ((dragging) => setIsDragging(dragging)) : undefined}
               onDragEnd={!isSharedView ? ((newRadius, newAngle) => {
                 setIsDragging(false);
