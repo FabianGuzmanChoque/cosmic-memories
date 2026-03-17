@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, Stars } from '@react-three/drei';
+import { OrbitControls, Stars, Text } from '@react-three/drei';
 import { motion } from 'framer-motion';
 import { X, Link, Trash2, Plus, Heart, Volume2, VolumeX, Edit } from 'lucide-react';
 
@@ -227,7 +227,7 @@ function Sun({ onClick }) {
   );
 }
 
-function Planet({ position, color, onClick, image, orbitRadius, onDragStart, onDragEnd, onMoveLeft, onMoveRight, isSharedView }) {
+function Planet({ position, color, onClick, image, orbitRadius, onDragStart, onDragEnd, onMoveLeft, onMoveRight, isSharedView, title }) {
   const ref = useRef();
   const glowRef = useRef();
   const ringRef = useRef();
@@ -337,6 +337,20 @@ function Planet({ position, color, onClick, image, orbitRadius, onDragStart, onD
         <sphereGeometry args={[1.5, 16, 16]} />
         <meshBasicMaterial color={color} transparent opacity={0.2} side={THREE.BackSide} />
       </mesh>
+      
+      {title && (
+        <Text
+          position={[0, 1.8, 0]}
+          fontSize={0.5}
+          color="white"
+          anchorX="center"
+          anchorY="middle"
+          outlineWidth={0.03}
+          outlineColor="#000000"
+        >
+          {title}
+        </Text>
+      )}
       
       {onMoveLeft && (
         <mesh 
@@ -773,6 +787,7 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
               color={memory.color || colors[index % colors.length]}
               image={memory.image}
               orbitRadius={memory.orbitRadius}
+              title={memory.title}
               onClick={() => handlePlanetClick(memory)}
               isSharedView={isSharedView}
               onDragStart={!isSharedView ? ((dragging) => setIsDragging(dragging)) : undefined}
