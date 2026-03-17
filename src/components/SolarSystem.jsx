@@ -572,6 +572,7 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
   }, []);
 
   const handlePlanetClick = useCallback((memory) => {
+    console.log('Planet clicked:', memory);
     setSelectedMemory(memory);
   }, []);
 
@@ -580,6 +581,7 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
   }, []);
 
   const handleStartEdit = useCallback((memory) => {
+    console.log('Starting edit for:', memory);
     setEditingMemory({ ...memory });
   }, []);
 
@@ -961,11 +963,12 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
                 const orbitValue = editingMemory.orbitRadius;
                 const memoryToSave = {
                   ...editingMemory,
+                  id: editingMemory.id,
                   orbitRadius: orbitValue ? parseInt(orbitValue) : 8,
                   orbitAngle: editingMemory.orbitAngle || 0,
                   color: editingMemory.color || '#ff6b9d'
                 };
-                console.log('Guardando memoria:', memoryToSave);
+                console.log('Guardando memoria con ID:', memoryToSave.id, memoryToSave);
                 onUpdateMemory(memoryToSave);
                 setSelectedMemory(memoryToSave);
               }
