@@ -675,14 +675,12 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
               image={memory.image}
               orbitRadius={memory.orbitRadius}
               onClick={() => handlePlanetClick(memory)}
-              onDragStart={(dragging) => setIsDragging(dragging)}
-              onDragEnd={(newRadius, newAngle) => {
+              onDragStart={!isSharedView ? ((dragging) => setIsDragging(dragging)) : undefined}
+              onDragEnd={!isSharedView ? ((newRadius, newAngle) => {
                 setIsDragging(false);
-                if (!isSharedView) {
-                  const updatedMemory = { ...memory, orbitRadius: newRadius, orbitAngle: newAngle };
-                  onUpdateMemory(updatedMemory);
-                }
-              }}
+                const updatedMemory = { ...memory, orbitRadius: newRadius, orbitAngle: newAngle };
+                onUpdateMemory(updatedMemory);
+              }) : undefined}
             />
           )
         ))}
