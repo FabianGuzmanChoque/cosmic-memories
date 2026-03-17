@@ -317,7 +317,7 @@ function OrbitLine({ radius }) {
 }
 
 function ExtraOrbits() {
-  const extraOrbits = [8, 12, 16, 21, 27, 33, 39, 45, 52, 60, 69, 79];
+  const extraOrbits = [8, 12, 16, 21, 27, 33, 39];
   
   return (
     <>
@@ -329,7 +329,7 @@ function ExtraOrbits() {
 }
 
 function generatePlanetPositions(memories) {
-  const solarSystemScale = [8, 12, 16, 21, 27, 33, 39, 45, 52, 60, 69, 79];
+  const solarSystemScale = [8, 12, 16, 21, 27, 33, 39];
   const positions = [];
   
   for (let i = 0; i < memories.length; i++) {
@@ -339,13 +339,13 @@ function generatePlanetPositions(memories) {
     if (memory.orbitRadius) {
       radius = memory.orbitRadius;
     } else {
-      radius = solarSystemScale[i] || 79;
+      radius = solarSystemScale[i] || 39;
     }
     
     if (memory.orbitAngle !== undefined) {
       angle = memory.orbitAngle;
     } else {
-      angle = (i * Math.PI * 2) / Math.min(memories.length, 12) + Math.PI / 8;
+      angle = (i * Math.PI * 2) / 7 + Math.PI / 8;
     }
     
     const x = Math.cos(angle) * radius;
@@ -541,10 +541,10 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
 
   const handleAddSubmit = (e) => {
     e.preventDefault();
-    const solarSystemScale = [8, 12, 16, 21, 27, 33, 39, 45, 52, 60, 69, 79];
+    const solarSystemScale = [8, 12, 16, 21, 27, 33, 39];
     const idx = planetMemories.length;
-    const orbitRadius = solarSystemScale[idx] || 79;
-    const orbitAngle = (idx * Math.PI * 2) / 12 + Math.PI / 8;
+    const orbitRadius = solarSystemScale[idx] || 39;
+    const orbitAngle = (idx * Math.PI * 2) / 7 + Math.PI / 8;
     const color = colors[idx % colors.length];
     onAddMemory({ id: Date.now(), ...newMemory, orbitRadius, orbitAngle, color });
     setNewMemory({ title: '', message: '', date: '', image: '' });
@@ -817,6 +817,16 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
                 onChange={(e) => setEditingMemory(prev => ({ ...prev, date: e.target.value }))}
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm"
               />
+              <select
+                value={editingMemory.orbitRadius || ''}
+                onChange={(e) => setEditingMemory(prev => ({ ...prev, orbitRadius: parseInt(e.target.value) }))}
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm"
+              >
+                <option value="" className="text-black">Seleccionar órbita</option>
+                {[8, 12, 16, 21, 27, 33, 39].map((r, i) => (
+                  <option key={r} value={r} className="text-black">Órbita {i + 1}</option>
+                ))}
+              </select>
               <div>
                 <input 
                   type="file" 
@@ -987,6 +997,16 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
                 onChange={(e) => setNewMemory(prev => ({ ...prev, date: e.target.value }))}
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm"
               />
+              <select
+                value={newMemory.orbitRadius || ''}
+                onChange={(e) => setNewMemory(prev => ({ ...prev, orbitRadius: parseInt(e.target.value) }))}
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm"
+              >
+                <option value="" className="text-black">Seleccionar órbita</option>
+                {[8, 12, 16, 21, 27, 33, 39].map((r, i) => (
+                  <option key={r} value={r} className="text-black">Órbita {i + 1}</option>
+                ))}
+              </select>
               <div>
                 <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" id="img-upload2" />
                 <label 
