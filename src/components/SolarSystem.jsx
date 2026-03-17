@@ -739,15 +739,19 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
         image: m.image
       }))
     };
+    
+    console.log('Total memories to share:', memories.length);
+    console.log('Memories:', JSON.stringify(memories.map(m => ({title: m.title, hasImage: !!m.image}))));
+    
     const jsonStr = JSON.stringify(shareData);
     const encoded = btoa(encodeURIComponent(jsonStr));
     const link = `${window.location.origin}?shared=${encoded}`;
     
-    console.log('Link length:', link.length, 'characters');
-    console.log('Number of memories being shared:', memories.length);
+    console.log('Link length:', link.length);
+    console.log('Share data length:', jsonStr.length);
     
     if (link.length > 8000) {
-      alert('Advertencia: El enlace es muy largo debido a las imágenes. Puede que no funcione en algunos navegadores. Considera usar imágenes más pequeñas o URLs de internet.');
+      alert('El enlace es muy largo. Usa imágenes más pequeñas o URLs de internet.');
     }
     
     navigator.clipboard.writeText(link);
