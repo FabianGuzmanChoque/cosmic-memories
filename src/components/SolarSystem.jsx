@@ -764,14 +764,14 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
                 <p className="text-sm text-white/50 mb-4">{selectedMemory.date}</p>
                 <p className="text-white/80 leading-relaxed text-lg">{selectedMemory.message}</p>
               </motion.div>
-              
-              {!isSharedView && (
-                <motion.div 
-                  className="pt-6 mt-6 border-t border-white/10 flex gap-3"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.3 }}
-                >
+               
+              <motion.div 
+                className="pt-6 mt-6 border-t border-white/10 flex gap-3"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3 }}
+              >
+                {!isSharedView && (
                   <button
                     onClick={() => {
                       setEditingMemory({ ...selectedMemory });
@@ -781,7 +781,9 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
                     <Edit className="w-4 h-4" />
                     Editar
                   </button>
-                  
+                )}
+                
+                {!isSharedView && (
                   <button
                     onClick={() => {
                       const idx = planetMemories.findIndex(m => m.id === selectedMemory.id);
@@ -796,8 +798,8 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
                     <Trash2 className="w-4 h-4" />
                     Eliminar
                   </button>
-                </motion.div>
-              )}
+                )}
+              </motion.div>
               
               <motion.p 
                 className="text-center text-white/30 text-xs mt-6 italic"
