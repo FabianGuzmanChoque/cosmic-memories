@@ -724,12 +724,15 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
 
   const copyShareLink = useCallback(() => {
     const musicToShare = musicUrl && musicUrl.startsWith('http') ? musicUrl : null;
+    
+    const validMemories = memories.filter(m => m.title && m.title.length > 1);
+    
     const shareData = {
       type: 'cosmic-memories',
       version: '1.0',
       title: universeTitle || 'Mi Universo de Recuerdos',
       music: musicToShare,
-      memories: memories.map(m => ({ 
+      memories: validMemories.map(m => ({ 
         title: m.title, 
         date: m.date, 
         message: m.message,
@@ -740,15 +743,13 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
       }))
     };
     
-    console.log('Total memories to share:', memories.length);
-    console.log('Memories:', JSON.stringify(memories.map(m => ({title: m.title, hasImage: !!m.image}))));
+    console.log('Valid memories to share:', validMemories.length);
     
     const jsonStr = JSON.stringify(shareData);
     const encoded = btoa(encodeURIComponent(jsonStr));
     const link = `${window.location.origin}?shared=${encoded}`;
     
     console.log('Link length:', link.length);
-    console.log('Share data length:', jsonStr.length);
     
     if (link.length > 8000) {
       alert('El enlace es muy largo. Usa imágenes más pequeñas o URLs de internet.');
