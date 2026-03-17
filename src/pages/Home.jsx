@@ -11,6 +11,9 @@ export default function Home() {
     const params = new URLSearchParams(window.location.search);
     const sharedData = params.get('shared');
     
+    console.log('URL:', window.location.href);
+    console.log('Shared data length:', sharedData ? sharedData.length : 0);
+    
     if (sharedData) {
       try {
         const decoded = JSON.parse(decodeURIComponent(atob(sharedData)));
