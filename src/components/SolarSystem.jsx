@@ -236,20 +236,28 @@ function Planet({ position, color, onClick, image, orbitRadius, onDragStart, onD
   const [texture, setTexture] = useState(null);
   
   useEffect(() => {
-    if (image) {
-      const loader = new THREE.TextureLoader();
-      loader.load(
-        image,
-        (loadedTexture) => {
-          loadedTexture.colorSpace = THREE.SRGBColorSpace;
-          setTexture(loadedTexture);
-        },
-        undefined,
-        () => setTexture(null)
-      );
-    } else {
+    if (!image) {
       setTexture(null);
+      return;
     }
+    
+    const loader = new THREE.TextureLoader();
+    loader.load(
+      image,
+      (loadedTexture) => {
+        loadedTexture.colorSpace = THREE.SRGBColorSpace;
+        loadedTexture.needsUpdate = true;
+        setTexture(loadedTexture);
+      },
+      undefined,
+      () => setTexture(null)
+    );
+    
+    return () => {
+      if (texture) {
+        texture.dispose();
+      }
+    };
   }, [image]);
   
   useFrame((state) => {
@@ -721,7 +729,7 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
         orbitRadius: m.orbitRadius,
         orbitAngle: m.orbitAngle,
         color: m.color,
-        image: m.image?.startsWith('http') ? m.image : null
+        image: m.image
       }))
     };
     const encoded = btoa(encodeURIComponent(JSON.stringify(shareData)));
