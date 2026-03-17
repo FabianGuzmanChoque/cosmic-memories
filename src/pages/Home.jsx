@@ -82,9 +82,7 @@ export default function Home() {
   };
 
   const handleUpdateMemory = (updatedMemory) => {
-    console.log('Updating memory:', updatedMemory);
     const updated = memories.map(m => m.id === updatedMemory.id ? updatedMemory : m);
-    console.log('Updated memories:', updated);
     setMemories(updated);
     localStorage.setItem('memories', JSON.stringify(updated));
   };
