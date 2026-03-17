@@ -236,6 +236,7 @@ function Planet({ position, color, onClick, image, orbitRadius, onDragStart, onD
   const [texture, setTexture] = useState(null);
   
   useEffect(() => {
+    console.log('Loading image for planet:', image);
     if (image) {
       const loader = new THREE.TextureLoader();
       loader.load(
@@ -245,7 +246,10 @@ function Planet({ position, color, onClick, image, orbitRadius, onDragStart, onD
           setTexture(loadedTexture);
         },
         undefined,
-        () => setTexture(null)
+        (error) => {
+          console.log('Error loading texture:', error);
+          setTexture(null);
+        }
       );
     } else {
       setTexture(null);
@@ -311,7 +315,9 @@ function Planet({ position, color, onClick, image, orbitRadius, onDragStart, onD
         {texture ? (
           <meshStandardMaterial 
             map={texture}
-            roughness={0.6}
+            roughness={0.5}
+            emissive="#ffffff"
+            emissiveIntensity={0.1}
           />
         ) : (
           <meshStandardMaterial 
