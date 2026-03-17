@@ -227,12 +227,10 @@ function Sun({ onClick }) {
   );
 }
 
-function Planet({ position, color, onClick, image, orbitRadius, onDragStart, onDragEnd }) {
+function Planet({ position, color, onClick, image, orbitRadius, onDragEnd }) {
   const ref = useRef();
   const glowRef = useRef();
   const ringRef = useRef();
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState(null);
   const orbitRadii = [8, 12, 16, 21, 27, 33, 39];
   
   const texture = useMemo(() => {
@@ -244,7 +242,7 @@ function Planet({ position, color, onClick, image, orbitRadius, onDragStart, onD
   }, [image]);
   
   useFrame((state) => {
-    if (ref.current && !isDragging) {
+    if (ref.current) {
       ref.current.rotation.y += 0.006;
     }
     if (glowRef.current) {
@@ -255,32 +253,31 @@ function Planet({ position, color, onClick, image, orbitRadius, onDragStart, onD
     }
   });
 
+  const handleClick = (e) => {
+    e.stopPropagation();
+    onClick();
+  };
+
   const handlePointerDown = (e) => {
     e.stopPropagation();
-    setIsDragging(true);
-    setDragStart({ x: e.point.x, z: e.point.z });
-    document.body.style.cursor = 'grabbing';
-    if (onDragStart) onDragStart();
+    e.target.setPointerCapture(e.pointerId);
+  };
+
+  const handlePointerMove = (e) => {
+    if (e.buttons === 1) {
+      e.stopPropagation();
+    }
   };
 
   const handlePointerUp = (e) => {
-    if (isDragging && dragStart && onDragEnd) {
-      const dx = e.point.x - dragStart.x;
-      const dz = e.point.z - dragStart.z;
-      const distance = Math.sqrt(dx * dx + dz * dz);
-      
-      if (distance > 2) {
-        const newRadius = Math.sqrt(e.point.x * e.point.x + e.point.z * e.point.z);
-        const closestOrbit = orbitRadii.reduce((prev, curr) => 
-          Math.abs(curr - newRadius) < Math.abs(prev - newRadius) ? curr : prev
-        );
-        onDragEnd(closestOrbit);
-      }
+    e.stopPropagation();
+    const currentRadius = Math.sqrt(e.point.x * e.point.x + e.point.z * e.point.z);
+    const closestOrbit = orbitRadii.reduce((prev, curr) => 
+      Math.abs(curr - currentRadius) < Math.abs(prev - currentRadius) ? curr : prev
+    );
+    if (onDragEnd && Math.abs(closestOrbit - currentRadius) < 5) {
+      onDragEnd(closestOrbit);
     }
-    setIsDragging(false);
-    setDragStart(null);
-    document.body.style.cursor = 'pointer';
-    if (onDragStart) onDragStart();
   };
 
   const hasRing = position[0] > 15;
@@ -289,13 +286,9 @@ function Planet({ position, color, onClick, image, orbitRadius, onDragStart, onD
     <group position={position}>
       <mesh 
         ref={ref}
-        onClick={(e) => { 
-          if (!isDragging) {
-            e.stopPropagation(); 
-            onClick(); 
-          }
-        }}
+        onClick={handleClick}
         onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
       >
         <sphereGeometry args={[1, 32, 32]} />
@@ -397,7 +390,6 @@ function generatePlanetPositions(memories) {
 export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onDeleteMemory, isSharedView = false, sharedTitle = '', sharedMusic = '' }) {
   const [selectedMemory, setSelectedMemory] = useState(null);
   const [editingMemory, setEditingMemory] = useState(null);
-  const [isDraggingPlanet, setIsDraggingPlanet] = useState(false);
   const [showExport, setShowExport] = useState(false);
   const [showAdd, setShowAdd] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -676,9 +668,7 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
               image={memory.image}
               orbitRadius={memory.orbitRadius}
               onClick={() => handlePlanetClick(memory)}
-              onDragStart={() => setIsDraggingPlanet(true)}
               onDragEnd={(newRadius) => {
-                setIsDraggingPlanet(false);
                 if (!isSharedView) {
                   const updatedMemory = { ...memory, orbitRadius: newRadius };
                   onUpdateMemory(updatedMemory);
@@ -696,9 +686,9 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
         )}
         
         <OrbitControls 
-          enablePan={!isDraggingPlanet}
-          enableZoom={!isDraggingPlanet}
-          enableRotate={!isDraggingPlanet}
+          enablePan={true}
+          enableZoom={true}
+          enableRotate={true}
           minDistance={5}
           maxDistance={150}
           autoRotate={!selectedMemory}
