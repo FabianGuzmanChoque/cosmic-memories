@@ -227,10 +227,13 @@ function Sun({ onClick }) {
   );
 }
 
-function Planet({ position, color, onClick, image }) {
+function Planet({ position, color, onClick, image, orbitRadius, onDragEnd }) {
   const ref = useRef();
   const glowRef = useRef();
   const ringRef = useRef();
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState(null);
+  const orbitRadii = [8, 12, 16, 21, 27, 33, 39];
   
   const texture = useMemo(() => {
     if (image) {
@@ -241,7 +244,7 @@ function Planet({ position, color, onClick, image }) {
   }, [image]);
   
   useFrame((state) => {
-    if (ref.current) {
+    if (ref.current && !isDragging) {
       ref.current.rotation.y += 0.006;
     }
     if (glowRef.current) {
@@ -252,13 +255,46 @@ function Planet({ position, color, onClick, image }) {
     }
   });
 
+  const handlePointerDown = (e) => {
+    e.stopPropagation();
+    setIsDragging(true);
+    setDragStart({ x: e.point.x, z: e.point.z });
+    document.body.style.cursor = 'grabbing';
+  };
+
+  const handlePointerUp = (e) => {
+    if (isDragging && dragStart && onDragEnd) {
+      const dx = e.point.x - dragStart.x;
+      const dz = e.point.z - dragStart.z;
+      const distance = Math.sqrt(dx * dx + dz * dz);
+      
+      if (distance > 2) {
+        const newRadius = Math.sqrt(e.point.x * e.point.x + e.point.z * e.point.z);
+        const closestOrbit = orbitRadii.reduce((prev, curr) => 
+          Math.abs(curr - newRadius) < Math.abs(prev - newRadius) ? curr : prev
+        );
+        onDragEnd(closestOrbit);
+      }
+    }
+    setIsDragging(false);
+    setDragStart(null);
+    document.body.style.cursor = 'pointer';
+  };
+
   const hasRing = position[0] > 15;
 
   return (
     <group position={position}>
       <mesh 
         ref={ref}
-        onClick={(e) => { e.stopPropagation(); onClick(); }}
+        onClick={(e) => { 
+          if (!isDragging) {
+            e.stopPropagation(); 
+            onClick(); 
+          }
+        }}
+        onPointerDown={handlePointerDown}
+        onPointerUp={handlePointerUp}
       >
         <sphereGeometry args={[1, 32, 32]} />
         {texture ? (
@@ -635,7 +671,14 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
               position={planetPositions[index]}
               color={memory.color || colors[index % colors.length]}
               image={memory.image}
+              orbitRadius={memory.orbitRadius}
               onClick={() => handlePlanetClick(memory)}
+              onDragEnd={(newRadius) => {
+                if (!isSharedView) {
+                  const updatedMemory = { ...memory, orbitRadius: newRadius };
+                  onUpdateMemory(updatedMemory);
+                }
+              }}
             />
           )
         ))}
@@ -827,6 +870,7 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
                   <option key={r} value={r} className="text-black">Órbita {i + 1}</option>
                 ))}
               </select>
+              <p className="text-white/40 text-xs">Mueve el planeta a otra órbita</p>
               <div>
                 <input 
                   type="file" 
