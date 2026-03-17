@@ -266,18 +266,19 @@ function Planet({ position, color, onClick, image, orbitRadius, onDragStart, onD
 
   const handleClick = (e) => {
     if (localDragging) return;
-    
     e.stopPropagation();
     onClick();
   };
 
   const handlePointerDown = (e) => {
+    if (isSharedView) return;
     e.stopPropagation();
     setLocalDragging(true);
     if (onDragStart) onDragStart(true);
   };
 
   const handlePointerUp = (e) => {
+    if (isSharedView) return;
     e.stopPropagation();
     setLocalDragging(false);
     if (onDragStart) onDragStart(false);
