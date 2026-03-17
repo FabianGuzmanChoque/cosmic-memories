@@ -38,7 +38,14 @@ export default function Home() {
 
     const saved = localStorage.getItem('memories');
     if (saved) {
-      setMemories(JSON.parse(saved));
+      const parsed = JSON.parse(saved);
+      const validMemories = parsed.filter(m => m.title && m.title.length > 1);
+      if (validMemories.length > 0) {
+        setMemories(validMemories);
+      } else {
+        setMemories(defaultMemories);
+        localStorage.setItem('memories', JSON.stringify(defaultMemories));
+      }
     } else {
       const defaultMemories = [
         {
