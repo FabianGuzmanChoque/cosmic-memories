@@ -900,17 +900,19 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.3 }}
               >
-                <button
-                  onClick={() => {
-                    console.log('Boton editar cliqueado, selectedMemory:', selectedMemory);
-                    handleStartEdit(selectedMemory);
-                  }}
-                  className="flex-1 flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-sm bg-blue-500/30 text-blue-300 hover:bg-blue-500/50 transition-all"
-                  style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%)' }}
-                >
-                  <Edit className="w-4 h-4" />
-                  Editar Este Recuerdo
-                </button>
+                {!isSharedView && (
+                  <button
+                    onClick={() => {
+                      console.log('Boton editar cliqueado, selectedMemory:', selectedMemory);
+                      handleStartEdit(selectedMemory);
+                    }}
+                    className="flex-1 flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-sm bg-blue-500/30 text-blue-300 hover:bg-blue-500/50 transition-all"
+                    style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%)' }}
+                  >
+                    <Edit className="w-4 h-4" />
+                    Editar Este Recuerdo
+                  </button>
+                )}
                 
                 {!isSharedView && (
                   <button
