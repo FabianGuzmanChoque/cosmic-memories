@@ -347,6 +347,7 @@ function Planet({ position, color, onClick, image, orbitRadius, onDragStart, onD
           anchorY="middle"
           outlineWidth={0.03}
           outlineColor="#000000"
+          followCamera={true}
         >
           {title}
         </Text>
