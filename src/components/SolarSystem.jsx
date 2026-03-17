@@ -234,6 +234,7 @@ function Planet({ position, color, onClick, image, orbitRadius, onDragStart, onD
   const orbitRadii = [8, 12, 16, 21, 27, 33, 39];
   const [localDragging, setLocalDragging] = useState(false);
   const [texture, setTexture] = useState(null);
+  const [key, setKey] = useState(0);
   
   useEffect(() => {
     if (!image) {
@@ -242,22 +243,17 @@ function Planet({ position, color, onClick, image, orbitRadius, onDragStart, onD
     }
     
     const loader = new THREE.TextureLoader();
+    loader.crossOrigin = 'anonymous';
     loader.load(
       image,
       (loadedTexture) => {
         loadedTexture.colorSpace = THREE.SRGBColorSpace;
-        loadedTexture.needsUpdate = true;
         setTexture(loadedTexture);
+        setKey(k => k + 1);
       },
       undefined,
       () => setTexture(null)
     );
-    
-    return () => {
-      if (texture) {
-        texture.dispose();
-      }
-    };
   }, [image]);
   
   useFrame((state) => {
@@ -311,6 +307,7 @@ function Planet({ position, color, onClick, image, orbitRadius, onDragStart, onD
   return (
     <group position={position}>
       <mesh 
+        key={key}
         ref={ref}
         onClick={handleClick}
         onPointerDown={handlePointerDown}
@@ -318,12 +315,7 @@ function Planet({ position, color, onClick, image, orbitRadius, onDragStart, onD
       >
         <sphereGeometry args={[1, 32, 32]} />
         {texture ? (
-          <meshStandardMaterial 
-            map={texture}
-            roughness={0.5}
-            emissive="#ffffff"
-            emissiveIntensity={0.1}
-          />
+          <meshBasicMaterial map={texture} />
         ) : (
           <meshStandardMaterial 
             color={color} 
