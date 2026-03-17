@@ -227,7 +227,7 @@ function Sun({ onClick }) {
   );
 }
 
-function Planet({ position, color, onClick, image, orbitRadius, onDragEnd }) {
+function Planet({ position, color, onClick, image, orbitRadius, onDragStart, onDragEnd }) {
   const ref = useRef();
   const glowRef = useRef();
   const ringRef = useRef();
@@ -260,6 +260,7 @@ function Planet({ position, color, onClick, image, orbitRadius, onDragEnd }) {
     setIsDragging(true);
     setDragStart({ x: e.point.x, z: e.point.z });
     document.body.style.cursor = 'grabbing';
+    if (onDragStart) onDragStart();
   };
 
   const handlePointerUp = (e) => {
@@ -279,6 +280,7 @@ function Planet({ position, color, onClick, image, orbitRadius, onDragEnd }) {
     setIsDragging(false);
     setDragStart(null);
     document.body.style.cursor = 'pointer';
+    if (onDragStart) onDragStart();
   };
 
   const hasRing = position[0] > 15;
@@ -395,6 +397,7 @@ function generatePlanetPositions(memories) {
 export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onDeleteMemory, isSharedView = false, sharedTitle = '', sharedMusic = '' }) {
   const [selectedMemory, setSelectedMemory] = useState(null);
   const [editingMemory, setEditingMemory] = useState(null);
+  const [isDraggingPlanet, setIsDraggingPlanet] = useState(false);
   const [showExport, setShowExport] = useState(false);
   const [showAdd, setShowAdd] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -673,7 +676,9 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
               image={memory.image}
               orbitRadius={memory.orbitRadius}
               onClick={() => handlePlanetClick(memory)}
+              onDragStart={() => setIsDraggingPlanet(true)}
               onDragEnd={(newRadius) => {
+                setIsDraggingPlanet(false);
                 if (!isSharedView) {
                   const updatedMemory = { ...memory, orbitRadius: newRadius };
                   onUpdateMemory(updatedMemory);
@@ -691,9 +696,9 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
         )}
         
         <OrbitControls 
-          enablePan={true}
-          enableZoom={true}
-          enableRotate={true}
+          enablePan={!isDraggingPlanet}
+          enableZoom={!isDraggingPlanet}
+          enableRotate={!isDraggingPlanet}
           minDistance={5}
           maxDistance={150}
           autoRotate={!selectedMemory}
