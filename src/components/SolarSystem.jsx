@@ -262,6 +262,7 @@ function Planet({ position, color, onClick, image, orbitRadius, onDragStart, onD
     const clickPoint = e.point;
     const planetCenter = new THREE.Vector3(...position);
     const relativeX = clickPoint.x - planetCenter.x;
+    const relativeZ = clickPoint.z - planetCenter.z;
     
     const currentIdx = orbitRadii.indexOf(orbitRadius);
     
@@ -269,6 +270,8 @@ function Planet({ position, color, onClick, image, orbitRadius, onDragStart, onD
       onMoveLeft();
     } else if (relativeX > 0.3 && currentIdx < orbitRadii.length - 1 && onMoveRight) {
       onMoveRight();
+    } else if (relativeZ > 0.5) {
+      onClick();
     } else {
       onClick();
     }
@@ -345,6 +348,10 @@ function Planet({ position, color, onClick, image, orbitRadius, onDragStart, onD
       <mesh position={[1.3, 0, 0]} rotation={[0, 0, -Math.PI / 2]}>
         <coneGeometry args={[0.25, 0.5, 8]} />
         <meshBasicMaterial color="#ffffff" transparent opacity={0.5} />
+      </mesh>
+      <mesh position={[0, 0, 1.1]}>
+        <sphereGeometry args={[0.15, 16, 16]} />
+        <meshBasicMaterial color="#ffffff" transparent opacity={0.7} />
       </mesh>
     </group>
   );
