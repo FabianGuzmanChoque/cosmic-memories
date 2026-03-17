@@ -231,7 +231,6 @@ function Planet({ position, color, onClick, image, orbitRadius, onDragEnd }) {
   const ref = useRef();
   const glowRef = useRef();
   const ringRef = useRef();
-  const orbitRadii = [8, 12, 16, 21, 27, 33, 39];
   
   const texture = useMemo(() => {
     if (image) {
@@ -263,20 +262,14 @@ function Planet({ position, color, onClick, image, orbitRadius, onDragEnd }) {
     e.target.setPointerCapture(e.pointerId);
   };
 
-  const handlePointerMove = (e) => {
-    if (e.buttons === 1) {
-      e.stopPropagation();
-    }
-  };
-
   const handlePointerUp = (e) => {
     e.stopPropagation();
-    const currentRadius = Math.sqrt(e.point.x * e.point.x + e.point.z * e.point.z);
-    const closestOrbit = orbitRadii.reduce((prev, curr) => 
-      Math.abs(curr - currentRadius) < Math.abs(prev - currentRadius) ? curr : prev
-    );
-    if (onDragEnd && Math.abs(closestOrbit - currentRadius) < 5) {
-      onDragEnd(closestOrbit);
+    const x = e.point.x;
+    const z = e.point.z;
+    const newRadius = Math.sqrt(x * x + z * z);
+    const newAngle = Math.atan2(z, x);
+    if (onDragEnd) {
+      onDragEnd(newRadius, newAngle);
     }
   };
 
@@ -288,7 +281,6 @@ function Planet({ position, color, onClick, image, orbitRadius, onDragEnd }) {
         ref={ref}
         onClick={handleClick}
         onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
       >
         <sphereGeometry args={[1, 32, 32]} />
@@ -668,9 +660,9 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
               image={memory.image}
               orbitRadius={memory.orbitRadius}
               onClick={() => handlePlanetClick(memory)}
-              onDragEnd={(newRadius) => {
+              onDragEnd={(newRadius, newAngle) => {
                 if (!isSharedView) {
-                  const updatedMemory = { ...memory, orbitRadius: newRadius };
+                  const updatedMemory = { ...memory, orbitRadius: newRadius, orbitAngle: newAngle };
                   onUpdateMemory(updatedMemory);
                 }
               }}
