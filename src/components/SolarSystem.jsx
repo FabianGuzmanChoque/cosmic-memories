@@ -1388,45 +1388,100 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           className="fixed inset-0 z-50 flex items-center justify-center"
-          style={{ background: 'rgba(0,0,0,0.9)' }}
+          style={{ background: 'rgba(0,0,0,0.85)' }}
           onClick={() => setShowGallery(false)}
         >
           <motion.div
-            initial={{ scale: 0.8 }}
-            animate={{ scale: 1 }}
-            className="glass-panel max-w-4xl w-full mx-4 p-6"
-            style={{ borderRadius: '20px', maxHeight: '80vh', overflow: 'auto' }}
+            initial={{ scale: 0.8, y: 30 }}
+            animate={{ scale: 1, y: 0 }}
+            className="glass-panel w-full mx-4 overflow-hidden"
+            style={{ borderRadius: '24px', maxHeight: '85vh' }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-light text-white">Galería de Recuerdos</h3>
-              <button onClick={() => setShowGallery(false)}>
-                <X className="w-6 h-6 text-white/50" />
-              </button>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {memories.filter(m => m.image).map((memory, idx) => (
-                <motion.div
-                  key={memory.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.1 }}
-                  className="relative aspect-square rounded-xl overflow-hidden cursor-pointer"
-                  onClick={() => {
-                    setShowGallery(false);
-                    handlePlanetClick(memory);
-                  }}
+            <div 
+              className="p-6 pb-4"
+              style={{ 
+                background: 'linear-gradient(135deg, rgba(255,107,157,0.2) 0%, rgba(192,132,252,0.2) 100%)',
+                borderBottom: '1px solid rgba(255,255,255,0.1)'
+              }}
+            >
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-3">
+                  <Heart className="w-6 h-6 text-pink-400" fill="#ff6b9d" />
+                  <h3 className="text-2xl font-light text-white">Galería de Recuerdos</h3>
+                </div>
+                <button 
+                  onClick={() => setShowGallery(false)}
+                  className="p-2 rounded-full hover:bg-white/10 transition-all"
                 >
-                  <img src={memory.image} alt={memory.title} className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 flex items-end" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.7), transparent)' }}>
-                    <p className="text-white text-sm p-3">{memory.title}</p>
+                  <X className="w-6 h-6 text-white/70" />
+                </button>
+              </div>
+              <p className="text-white/50 text-sm mt-1">
+                {memories.filter(m => m.image).length} momentos capturados
+              </p>
+            </div>
+            
+            <div 
+              className="p-6 overflow-y-auto" 
+              style={{ maxHeight: 'calc(85vh - 120px)' }}
+            >
+              {memories.filter(m => m.image).length > 0 ? (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
+                  {memories.filter(m => m.image).map((memory, idx) => (
+                    <motion.div
+                      key={memory.id}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: idx * 0.08 }}
+                      className="group relative rounded-2xl overflow-hidden cursor-pointer"
+                      style={{ aspectRatio: '1' }}
+                      onClick={() => {
+                        setShowGallery(false);
+                        handlePlanetClick(memory);
+                      }}
+                    >
+                      <img 
+                        src={memory.image} 
+                        alt={memory.title} 
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+                      />
+                      <div 
+                        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                        style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.3) 50%, transparent 100%)' }}
+                      />
+                      <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                        <p className="text-white font-medium text-lg">{memory.title}</p>
+                        {memory.date && (
+                          <p className="text-white/60 text-xs mt-1">{memory.date}</p>
+                        )}
+                      </div>
+                      <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <div 
+                          className="w-8 h-8 rounded-full flex items-center justify-center"
+                          style={{ background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(4px)' }}
+                        >
+                          <Heart className="w-4 h-4 text-white" fill="white" />
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-16">
+                  <div 
+                    className="w-24 h-24 rounded-full flex items-center justify-center mb-4"
+                    style={{ background: 'linear-gradient(135deg, rgba(255,107,157,0.2) 0%, rgba(192,132,252,0.2) 100%)' }}
+                  >
+                    <Heart className="w-12 h-12 text-pink-400/50" />
                   </div>
-                </motion.div>
-              ))}
-              {memories.filter(m => m.image).length === 0 && (
-                <p className="col-span-full text-center text-white/50 py-8">
-                  No hay imágenes todavía. ¡Agrega recuerdos con fotos!
-                </p>
+                  <p className="text-white/50 text-center text-lg">
+                    No hay imágenes todavía
+                  </p>
+                  <p className="text-white/30 text-center text-sm mt-2">
+                    Agrega recuerdos con fotos para verlos aquí
+                  </p>
+                </div>
               )}
             </div>
           </motion.div>
