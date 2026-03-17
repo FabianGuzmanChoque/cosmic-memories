@@ -958,8 +958,14 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
             <form onSubmit={(e) => {
               e.preventDefault();
               if (!isSharedView) {
-                onUpdateMemory(editingMemory);
-                setSelectedMemory(editingMemory);
+                const memoryToSave = {
+                  ...editingMemory,
+                  orbitRadius: editingMemory.orbitRadius || 8,
+                  orbitAngle: editingMemory.orbitAngle || 0,
+                  color: editingMemory.color || '#ff6b9d'
+                };
+                onUpdateMemory(memoryToSave);
+                setSelectedMemory(memoryToSave);
               }
               setEditingMemory(null);
             }} className="space-y-4">
