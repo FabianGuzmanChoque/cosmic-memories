@@ -339,18 +339,18 @@ function Planet({ position, color, onClick, image, orbitRadius, onDragStart, onD
       </mesh>
       
       {title && (
-        <Text
-          position={[0, 1.8, 0]}
-          fontSize={0.5}
-          color="white"
-          anchorX="center"
-          anchorY="middle"
-          outlineWidth={0.03}
-          outlineColor="#000000"
-          followCamera={true}
-        >
-          {title}
-        </Text>
+        <Billboard position={[0, 1.8, 0]}>
+          <Text
+            fontSize={0.5}
+            color="white"
+            anchorX="center"
+            anchorY="middle"
+            outlineWidth={0.03}
+            outlineColor="#000000"
+          >
+            {title}
+          </Text>
+        </Billboard>
       )}
       
       {onMoveLeft && (
