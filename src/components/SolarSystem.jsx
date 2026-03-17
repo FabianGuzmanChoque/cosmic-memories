@@ -817,6 +817,37 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
                 onChange={(e) => setEditingMemory(prev => ({ ...prev, date: e.target.value }))}
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm"
               />
+              <div>
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  id="img-edit"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onloadend = () => {
+                        setEditingMemory(prev => ({ ...prev, image: reader.result }));
+                      };
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                />
+                <label 
+                  htmlFor="img-edit"
+                  className="block w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white/60 text-sm text-center cursor-pointer hover:bg-white/10 transition-all"
+                >
+                  {editingMemory.image ? '✓ Imagen cambiada' : '📷 Cambiar imagen'}
+                </label>
+              </div>
+              <input
+                type="text"
+                placeholder="O pega un enlace de imagen..."
+                value={editingMemory.image?.startsWith('http') ? editingMemory.image : ''}
+                onChange={(e) => setEditingMemory(prev => ({ ...prev, image: e.target.value }))}
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder-white/30"
+              />
               <motion.button 
                 type="submit" 
                 className="w-full py-3 rounded-xl text-white font-medium flex items-center justify-center gap-2"
