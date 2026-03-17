@@ -227,7 +227,7 @@ function Sun({ onClick }) {
   );
 }
 
-function Planet({ position, color, onClick, image, orbitRadius, onDragStart, onDragEnd }) {
+function Planet({ position, color, onClick, image, orbitRadius, onDragStart, onDragEnd, onMoveLeft, onMoveRight }) {
   const ref = useRef();
   const glowRef = useRef();
   const ringRef = useRef();
@@ -255,8 +255,21 @@ function Planet({ position, color, onClick, image, orbitRadius, onDragStart, onD
   });
 
   const handleClick = (e) => {
-    if (!localDragging) {
-      e.stopPropagation();
+    if (localDragging) return;
+    
+    e.stopPropagation();
+    
+    const clickPoint = e.point;
+    const planetCenter = new THREE.Vector3(...position);
+    const relativeX = clickPoint.x - planetCenter.x;
+    
+    const currentIdx = orbitRadii.indexOf(orbitRadius);
+    
+    if (relativeX < -0.3 && currentIdx > 0 && onMoveLeft) {
+      onMoveLeft();
+    } else if (relativeX > 0.3 && currentIdx < orbitRadii.length - 1 && onMoveRight) {
+      onMoveRight();
+    } else {
       onClick();
     }
   };
@@ -323,6 +336,15 @@ function Planet({ position, color, onClick, image, orbitRadius, onDragStart, onD
       <mesh ref={glowRef}>
         <sphereGeometry args={[1.5, 16, 16]} />
         <meshBasicMaterial color={color} transparent opacity={0.2} side={THREE.BackSide} />
+      </mesh>
+      
+      <mesh position={[-1.3, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
+        <coneGeometry args={[0.25, 0.5, 8]} />
+        <meshBasicMaterial color="#ffffff" transparent opacity={0.5} />
+      </mesh>
+      <mesh position={[1.3, 0, 0]} rotation={[0, 0, -Math.PI / 2]}>
+        <coneGeometry args={[0.25, 0.5, 8]} />
+        <meshBasicMaterial color="#ffffff" transparent opacity={0.5} />
       </mesh>
     </group>
   );
@@ -498,6 +520,45 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
   const planetPositions = useMemo(() => generatePlanetPositions(planetMemories), [planetMemories]);
   
   const colors = ['#ff6b9d', '#c084fc', '#fcd34d', '#60a5fa', '#4ade80', '#fb923c', '#e879f9', '#22d3ee'];
+  const initialized = useRef(false);
+
+  useEffect(() => {
+    if (initialized.current || isSharedView) return;
+    initialized.current = true;
+    
+    const solarSystemScale = [8, 12, 16, 21, 27, 33, 39];
+    let hasChanges = false;
+    const updatedMemories = planetMemories.map((memory, i) => {
+      if (memory.orbitRadius === undefined) {
+        hasChanges = true;
+        return { 
+          ...memory, 
+          orbitRadius: solarSystemScale[i] || 39,
+          orbitAngle: (i * Math.PI * 2) / 7 + Math.PI / 8,
+          color: colors[i % colors.length]
+        };
+      }
+      if (memory.orbitAngle === undefined) {
+        hasChanges = true;
+        return { 
+          ...memory, 
+          orbitAngle: (i * Math.PI * 2) / 7 + Math.PI / 8,
+          color: colors[i % colors.length]
+        };
+      }
+      if (!memory.color) {
+        hasChanges = true;
+        return { ...memory, color: colors[i % colors.length] };
+      }
+      return memory;
+    });
+    
+    if (hasChanges) {
+      updatedMemories.forEach((m) => {
+        onUpdateMemory(m);
+      });
+    }
+  }, []);
 
   const handlePlanetClick = useCallback((memory) => {
     setSelectedMemory(memory);
@@ -505,6 +566,10 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
 
   const handleClosePanel = useCallback(() => {
     setSelectedMemory(null);
+  }, []);
+
+  const handleStartEdit = useCallback((memory) => {
+    setEditingMemory({ ...memory });
   }, []);
 
   const handleDelete = useCallback((id, position) => {
@@ -681,6 +746,24 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
                 const updatedMemory = { ...memory, orbitRadius: newRadius, orbitAngle: newAngle };
                 onUpdateMemory(updatedMemory);
               }) : undefined}
+              onMoveLeft={!isSharedView ? (() => {
+                const orbitRadii = [8, 12, 16, 21, 27, 33, 39];
+                const currentIdx = orbitRadii.indexOf(memory.orbitRadius);
+                if (currentIdx > 0) {
+                  const newRadius = orbitRadii[currentIdx - 1];
+                  const updatedMemory = { ...memory, orbitRadius: newRadius };
+                  onUpdateMemory(updatedMemory);
+                }
+              }) : undefined}
+              onMoveRight={!isSharedView ? (() => {
+                const orbitRadii = [8, 12, 16, 21, 27, 33, 39];
+                const currentIdx = orbitRadii.indexOf(memory.orbitRadius);
+                if (currentIdx < orbitRadii.length - 1) {
+                  const newRadius = orbitRadii[currentIdx + 1];
+                  const updatedMemory = { ...memory, orbitRadius: newRadius };
+                  onUpdateMemory(updatedMemory);
+                }
+              }) : undefined}
             />
           )
         ))}
@@ -693,13 +776,13 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
         )}
         
         <OrbitControls 
-          enabled={!isDragging}
-          enablePan={!isDragging}
-          enableZoom={!isDragging}
-          enableRotate={!isDragging}
+          enabled={!isDragging && !selectedMemory && !editingMemory}
+          enablePan={!isDragging && !selectedMemory && !editingMemory}
+          enableZoom={!isDragging && !selectedMemory && !editingMemory}
+          enableRotate={!isDragging && !selectedMemory && !editingMemory}
           minDistance={5}
           maxDistance={150}
-          autoRotate={!selectedMemory}
+          autoRotate={!selectedMemory && !editingMemory}
           autoRotateSpeed={0.1}
         />
       </Canvas>
@@ -765,7 +848,7 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
                 <p className="text-white/80 leading-relaxed text-lg">{selectedMemory.message}</p>
               </motion.div>
                
-              {isSharedView ? (
+              {isSharedView && (
                 <motion.p 
                   className="text-center text-white/30 text-xs mt-6 italic"
                   initial={{ opacity: 0 }}
@@ -774,23 +857,30 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
                 >
                   {romanticQuotes[Math.floor(Math.random() * romanticQuotes.length)]}
                 </motion.p>
-              ) : (
-                <motion.div 
-                  className="pt-6 mt-6 border-t border-white/10 flex gap-3"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.3 }}
+              )}
+              
+              <motion.div 
+                className="pt-6 mt-6 border-t border-white/10 flex gap-3"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3 }}
+              >
+                <button
+                  onClick={() => {
+                    handleStartEdit(selectedMemory);
+                  }}
+                  className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm transition-all ${
+                    isSharedView 
+                      ? 'bg-white/5 text-white/30 cursor-not-allowed' 
+                      : 'bg-blue-500/20 text-blue-400 hover:bg-blue-500/30'
+                  }`}
+                  disabled={isSharedView}
                 >
-                  <button
-                    onClick={() => {
-                      setEditingMemory({ ...selectedMemory });
-                    }}
-                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-500/20 text-blue-400 text-sm hover:bg-blue-500/30 transition-all"
-                  >
-                    <Edit className="w-4 h-4" />
-                    Editar
-                  </button>
-                  
+                  <Edit className="w-4 h-4" />
+                  {isSharedView ? 'Ver' : 'Editar'}
+                </button>
+                
+                {!isSharedView && (
                   <button
                     onClick={() => {
                       const idx = planetMemories.findIndex(m => m.id === selectedMemory.id);
@@ -805,11 +895,11 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
                     <Trash2 className="w-4 h-4" />
                     Eliminar
                   </button>
-                </motion.div>
-              )}
+                )}
+              </motion.div>
               
               <motion.p 
-                className="text-center text-white/30 text-xs mt-6 italic"
+                className="text-center text-white/30 text-xs mt-4 italic"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.4 }}
@@ -839,43 +929,57 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
             <div className="flex justify-between items-center mb-5">
               <div className="flex items-center gap-2">
                 <Edit className="w-5 h-5 text-blue-400" />
-                <h3 className="text-lg font-light text-white">Editar Recuerdo</h3>
+                <h3 className="text-lg font-light text-white">
+                  {isSharedView ? 'Ver Recuerdo' : 'Editar Recuerdo'}
+                </h3>
               </div>
               <button onClick={() => setEditingMemory(null)}>
                 <X className="w-5 h-5 text-white/50" />
               </button>
             </div>
             
+            {isSharedView && (
+              <p className="text-white/40 text-xs mb-4 bg-white/5 p-2 rounded-lg">
+                Vista de solo lectura. Los cambios no se guardarán.
+              </p>
+            )}
+            
             <form onSubmit={(e) => {
               e.preventDefault();
-              onUpdateMemory(editingMemory);
-              setSelectedMemory(editingMemory);
+              if (!isSharedView) {
+                onUpdateMemory(editingMemory);
+                setSelectedMemory(editingMemory);
+              }
               setEditingMemory(null);
             }} className="space-y-4">
               <input
                 type="text"
                 placeholder="Título del recuerdo"
                 value={editingMemory.title || ''}
-                onChange={(e) => setEditingMemory(prev => ({ ...prev, title: e.target.value }))}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm"
+                onChange={(e) => !isSharedView && setEditingMemory(prev => ({ ...prev, title: e.target.value }))}
+                className={`w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm ${isSharedView ? 'text-white/70 cursor-not-allowed' : 'text-white'}`}
+                readOnly={isSharedView}
                 required
               />
               <textarea
                 placeholder="Escribe un mensaje romántico..."
                 value={editingMemory.message || ''}
-                onChange={(e) => setEditingMemory(prev => ({ ...prev, message: e.target.value }))}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm h-28 resize-none"
+                onChange={(e) => !isSharedView && setEditingMemory(prev => ({ ...prev, message: e.target.value }))}
+                className={`w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm h-28 resize-none ${isSharedView ? 'text-white/70 cursor-not-allowed' : 'text-white'}`}
+                readOnly={isSharedView}
               />
               <input
                 type="date"
                 value={editingMemory.date || ''}
-                onChange={(e) => setEditingMemory(prev => ({ ...prev, date: e.target.value }))}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm"
+                onChange={(e) => !isSharedView && setEditingMemory(prev => ({ ...prev, date: e.target.value }))}
+                className={`w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm ${isSharedView ? 'text-white/70 cursor-not-allowed' : 'text-white'}`}
+                readOnly={isSharedView}
               />
               <select
                 value={editingMemory.orbitRadius || ''}
-                onChange={(e) => setEditingMemory(prev => ({ ...prev, orbitRadius: parseInt(e.target.value) }))}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm"
+                onChange={(e) => !isSharedView && setEditingMemory(prev => ({ ...prev, orbitRadius: parseInt(e.target.value) }))}
+                className={`w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm ${isSharedView ? 'text-white/70 cursor-not-allowed' : 'text-white'}`}
+                disabled={isSharedView}
               >
                 <option value="" className="text-black">Seleccionar órbita</option>
                 {[8, 12, 16, 21, 27, 33, 39].map((r, i) => (
@@ -883,45 +987,49 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
                 ))}
               </select>
               <p className="text-white/40 text-xs">Mueve el planeta a otra órbita</p>
-              <div>
-                <input 
-                  type="file" 
-                  accept="image/*" 
-                  id="img-edit"
-                  className="hidden"
-                  onChange={(e) => {
-                    const file = e.target.files[0];
-                    if (file) {
-                      const reader = new FileReader();
-                      reader.onloadend = () => {
-                        setEditingMemory(prev => ({ ...prev, image: reader.result }));
-                      };
-                      reader.readAsDataURL(file);
-                    }
-                  }}
-                />
-                <label 
-                  htmlFor="img-edit"
-                  className="block w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white/60 text-sm text-center cursor-pointer hover:bg-white/10 transition-all"
-                >
-                  {editingMemory.image ? '✓ Imagen cambiada' : '📷 Cambiar imagen'}
-                </label>
-              </div>
+              {!isSharedView && (
+                <div>
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    id="img-edit"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                          setEditingMemory(prev => ({ ...prev, image: reader.result }));
+                        };
+                        reader.readAsDataURL(file);
+                      }
+                    }}
+                  />
+                  <label 
+                    htmlFor="img-edit"
+                    className="block w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white/60 text-sm text-center cursor-pointer hover:bg-white/10 transition-all"
+                  >
+                    {editingMemory.image ? '✓ Imagen cambiada' : '📷 Cambiar imagen'}
+                  </label>
+                </div>
+              )}
               <input
                 type="text"
                 placeholder="O pega un enlace de imagen..."
                 value={editingMemory.image?.startsWith('http') ? editingMemory.image : ''}
-                onChange={(e) => setEditingMemory(prev => ({ ...prev, image: e.target.value }))}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder-white/30"
+                onChange={(e) => !isSharedView && setEditingMemory(prev => ({ ...prev, image: e.target.value }))}
+                className={`w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm placeholder-white/30 ${isSharedView ? 'text-white/70 cursor-not-allowed' : 'text-white'}`}
+                readOnly={isSharedView}
               />
               <motion.button 
-                type="submit" 
+                type="button"
+                onClick={() => setEditingMemory(null)}
                 className="w-full py-3 rounded-xl text-white font-medium flex items-center justify-center gap-2"
-                style={{ background: 'linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%)' }}
+                style={{ background: 'rgba(255,255,255,0.1)' }}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                Guardar Cambios
+                {isSharedView ? 'Cerrar' : 'Guardar Cambios'}
               </motion.button>
             </form>
           </motion.div>
