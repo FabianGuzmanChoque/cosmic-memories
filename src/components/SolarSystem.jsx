@@ -233,13 +233,23 @@ function Planet({ position, color, onClick, image, orbitRadius, onDragStart, onD
   const ringRef = useRef();
   const orbitRadii = [8, 12, 16, 21, 27, 33, 39];
   const [localDragging, setLocalDragging] = useState(false);
+  const [texture, setTexture] = useState(null);
   
-  const texture = useMemo(() => {
+  useEffect(() => {
     if (image) {
       const loader = new THREE.TextureLoader();
-      return loader.load(image);
+      loader.load(
+        image,
+        (loadedTexture) => {
+          loadedTexture.colorSpace = THREE.SRGBColorSpace;
+          setTexture(loadedTexture);
+        },
+        undefined,
+        () => setTexture(null)
+      );
+    } else {
+      setTexture(null);
     }
-    return null;
   }, [image]);
   
   useFrame((state) => {
