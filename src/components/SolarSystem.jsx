@@ -335,38 +335,44 @@ function Planet({ position, color, onClick, image, orbitRadius, onDragStart, onD
         <meshBasicMaterial color={color} transparent opacity={0.2} side={THREE.BackSide} />
       </mesh>
       
-      <mesh 
-        position={[-1.3, 0, 0]} 
-        rotation={[0, 0, Math.PI / 2]}
-        onClick={(e) => {
-          e.stopPropagation();
-          if (onMoveLeft) onMoveLeft();
-        }}
-      >
-        <coneGeometry args={[0.25, 0.5, 8]} />
-        <meshBasicMaterial color="#ffffff" transparent opacity={0.5} />
-      </mesh>
-      <mesh 
-        position={[1.3, 0, 0]} 
-        rotation={[0, 0, -Math.PI / 2]}
-        onClick={(e) => {
-          e.stopPropagation();
-          if (onMoveRight) onMoveRight();
-        }}
-      >
-        <coneGeometry args={[0.25, 0.5, 8]} />
-        <meshBasicMaterial color="#ffffff" transparent opacity={0.5} />
-      </mesh>
-      <mesh 
-        position={[0, 0, 1.1]}
-        onClick={(e) => {
-          e.stopPropagation();
-          onClick();
-        }}
-      >
-        <sphereGeometry args={[0.15, 16, 16]} />
-        <meshBasicMaterial color="#ffffff" transparent opacity={0.7} />
-      </mesh>
+      {onMoveLeft && (
+        <mesh 
+          position={[-1.3, 0, 0]} 
+          rotation={[0, 0, Math.PI / 2]}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (onMoveLeft) onMoveLeft();
+          }}
+        >
+          <coneGeometry args={[0.25, 0.5, 8]} />
+          <meshBasicMaterial color="#ffffff" transparent opacity={0.5} />
+        </mesh>
+      )}
+      {onMoveRight && (
+        <mesh 
+          position={[1.3, 0, 0]} 
+          rotation={[0, 0, -Math.PI / 2]}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (onMoveRight) onMoveRight();
+          }}
+        >
+          <coneGeometry args={[0.25, 0.5, 8]} />
+          <meshBasicMaterial color="#ffffff" transparent opacity={0.5} />
+        </mesh>
+      )}
+      {onMoveLeft && (
+        <mesh 
+          position={[0, 0, 1.1]}
+          onClick={(e) => {
+            e.stopPropagation();
+            onClick();
+          }}
+        >
+          <sphereGeometry args={[0.15, 16, 16]} />
+          <meshBasicMaterial color="#ffffff" transparent opacity={0.7} />
+        </mesh>
+      )}
     </group>
   );
 }
