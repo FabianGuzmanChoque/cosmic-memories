@@ -880,17 +880,14 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
               >
                 <button
                   onClick={() => {
+                    console.log('Boton editar cliqueado, selectedMemory:', selectedMemory);
                     handleStartEdit(selectedMemory);
                   }}
-                  className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm transition-all ${
-                    isSharedView 
-                      ? 'bg-white/5 text-white/30 cursor-not-allowed' 
-                      : 'bg-blue-500/20 text-blue-400 hover:bg-blue-500/30'
-                  }`}
-                  disabled={isSharedView}
+                  className="flex-1 flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-sm bg-blue-500/30 text-blue-300 hover:bg-blue-500/50 transition-all"
+                  style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%)' }}
                 >
                   <Edit className="w-4 h-4" />
-                  {isSharedView ? 'Ver' : 'Editar'}
+                  Editar Este Recuerdo
                 </button>
                 
                 {!isSharedView && (
@@ -903,10 +900,9 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
                         handleDelete(selectedMemory.id, [0, 0, 0]);
                       }
                     }}
-                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-500/20 text-red-400 text-sm hover:bg-red-500/30 transition-all"
+                    className="flex items-center gap-2 px-3 py-2 rounded-xl bg-red-500/10 text-red-400/60 text-xs hover:bg-red-500/20 transition-all"
                   >
-                    <Trash2 className="w-4 h-4" />
-                    Eliminar
+                    <Trash2 className="w-3 h-3" />
                   </button>
                 )}
               </motion.div>
