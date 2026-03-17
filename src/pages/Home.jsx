@@ -15,6 +15,7 @@ export default function Home() {
       try {
         const decoded = JSON.parse(decodeURIComponent(atob(sharedData)));
         if (decoded.type === 'cosmic-memories' && decoded.memories) {
+          console.log('Shared memories count:', decoded.memories.length);
           const solarSystemScale = [8, 12, 16, 21, 27, 33, 39];
           const processedMemories = decoded.memories.map((m, i) => ({
             ...m,
@@ -23,6 +24,7 @@ export default function Home() {
             orbitAngle: m.orbitAngle ?? ((i * Math.PI * 2) / 7 + Math.PI / 8),
             color: m.color || ['#ff6b9d', '#c084fc', '#fcd34d', '#60a5fa', '#4ade80', '#fb923c', '#e879f9', '#22d3ee'][i % 8]
           }));
+          console.log('Processed memories count:', processedMemories.length);
           setMemories(processedMemories);
           setIsSharedView(true);
           setSharedTitle(decoded.title || 'Universo de Recuerdos');
