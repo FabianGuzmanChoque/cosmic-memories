@@ -236,7 +236,6 @@ function Planet({ position, color, onClick, image, orbitRadius, onDragStart, onD
   const [texture, setTexture] = useState(null);
   
   useEffect(() => {
-    console.log('Loading image for planet:', image);
     if (image) {
       const loader = new THREE.TextureLoader();
       loader.load(
@@ -246,10 +245,7 @@ function Planet({ position, color, onClick, image, orbitRadius, onDragStart, onD
           setTexture(loadedTexture);
         },
         undefined,
-        (error) => {
-          console.log('Error loading texture:', error);
-          setTexture(null);
-        }
+        () => setTexture(null)
       );
     } else {
       setTexture(null);
@@ -269,11 +265,9 @@ function Planet({ position, color, onClick, image, orbitRadius, onDragStart, onD
   });
 
   const handleClick = (e) => {
-    console.log('Planet clicked in component, isSharedView:', e);
     if (localDragging) return;
     
     e.stopPropagation();
-    console.log('Calling onClick:', onClick);
     onClick();
   };
 
@@ -596,7 +590,6 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
   }, []);
 
   const handlePlanetClick = useCallback((memory) => {
-    console.log('Planet clicked:', memory);
     setSelectedMemory(memory);
   }, []);
 
@@ -605,7 +598,6 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
   }, []);
 
   const handleStartEdit = useCallback((memory) => {
-    console.log('Starting edit for:', memory);
     setEditingMemory({ ...memory });
   }, []);
 
@@ -906,7 +898,6 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
                 {!isSharedView && (
                   <button
                     onClick={() => {
-                      console.log('Boton editar cliqueado, selectedMemory:', selectedMemory);
                       handleStartEdit(selectedMemory);
                     }}
                     className="flex-1 flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-sm bg-blue-500/30 text-blue-300 hover:bg-blue-500/50 transition-all"
@@ -991,7 +982,6 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
                   orbitAngle: editingMemory.orbitAngle || 0,
                   color: editingMemory.color || '#ff6b9d'
                 };
-                console.log('Guardando memoria con ID:', memoryToSave.id, memoryToSave);
                 onUpdateMemory(memoryToSave);
                 setSelectedMemory(memoryToSave);
               }
@@ -1086,7 +1076,6 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
                       orbitAngle: editingMemory.orbitAngle || 0,
                       color: editingMemory.color || '#ff6b9d'
                     };
-                    console.log('Guardando desde boton:', memoryToSave);
                     onUpdateMemory(memoryToSave);
                     setSelectedMemory(memoryToSave);
                   }
