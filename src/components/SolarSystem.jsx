@@ -3,7 +3,7 @@ import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Stars } from '@react-three/drei';
 import { motion } from 'framer-motion';
-import { X, Link, Trash2, Plus, Heart, Volume2, VolumeX } from 'lucide-react';
+import { X, Link, Trash2, Plus, Heart, Volume2, VolumeX, Edit } from 'lucide-react';
 
 function FloatingParticles() {
   const count = 80;
@@ -358,6 +358,7 @@ function generatePlanetPositions(memories) {
 
 export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onDeleteMemory, isSharedView = false, sharedTitle = '', sharedMusic = '' }) {
   const [selectedMemory, setSelectedMemory] = useState(null);
+  const [editingMemory, setEditingMemory] = useState(null);
   const [showExport, setShowExport] = useState(false);
   const [showAdd, setShowAdd] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -727,6 +728,16 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
                 >
                   <button
                     onClick={() => {
+                      setEditingMemory({ ...selectedMemory });
+                    }}
+                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-500/20 text-blue-400 text-sm hover:bg-blue-500/30 transition-all"
+                  >
+                    <Edit className="w-4 h-4" />
+                    Editar
+                  </button>
+                  
+                  <button
+                    onClick={() => {
                       const idx = planetMemories.findIndex(m => m.id === selectedMemory.id);
                       if (idx >= 0 && planetPositions[idx]) {
                         handleDelete(selectedMemory.id, planetPositions[idx]);
@@ -751,6 +762,71 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
                 {romanticQuotes[Math.floor(Math.random() * romanticQuotes.length)]}
               </motion.p>
             </div>
+          </motion.div>
+        </motion.div>
+      )}
+
+      {editingMemory && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="fixed inset-0 z-50 flex items-center justify-end"
+          style={{ background: 'rgba(0,0,0,0.5)' }}
+          onClick={() => setEditingMemory(null)}
+        >
+          <motion.div
+            initial={{ x: 100, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            className="glass-panel max-w-sm w-full p-6 m-4"
+            style={{ borderRadius: '20px' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-center mb-5">
+              <div className="flex items-center gap-2">
+                <Edit className="w-5 h-5 text-blue-400" />
+                <h3 className="text-lg font-light text-white">Editar Recuerdo</h3>
+              </div>
+              <button onClick={() => setEditingMemory(null)}>
+                <X className="w-5 h-5 text-white/50" />
+              </button>
+            </div>
+            
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              onUpdateMemory(editingMemory);
+              setSelectedMemory(editingMemory);
+              setEditingMemory(null);
+            }} className="space-y-4">
+              <input
+                type="text"
+                placeholder="Título del recuerdo"
+                value={editingMemory.title || ''}
+                onChange={(e) => setEditingMemory(prev => ({ ...prev, title: e.target.value }))}
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm"
+                required
+              />
+              <textarea
+                placeholder="Escribe un mensaje romántico..."
+                value={editingMemory.message || ''}
+                onChange={(e) => setEditingMemory(prev => ({ ...prev, message: e.target.value }))}
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm h-28 resize-none"
+              />
+              <input
+                type="date"
+                value={editingMemory.date || ''}
+                onChange={(e) => setEditingMemory(prev => ({ ...prev, date: e.target.value }))}
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm"
+              />
+              <motion.button 
+                type="submit" 
+                className="w-full py-3 rounded-xl text-white font-medium flex items-center justify-center gap-2"
+                style={{ background: 'linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%)' }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                Guardar Cambios
+              </motion.button>
+            </form>
           </motion.div>
         </motion.div>
       )}
