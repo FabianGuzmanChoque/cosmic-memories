@@ -269,9 +269,11 @@ function Planet({ position, color, onClick, image, orbitRadius, onDragStart, onD
   });
 
   const handleClick = (e) => {
+    console.log('Planet clicked in component, isSharedView:', e);
     if (localDragging) return;
     
     e.stopPropagation();
+    console.log('Calling onClick:', onClick);
     onClick();
   };
 
@@ -367,18 +369,16 @@ function Planet({ position, color, onClick, image, orbitRadius, onDragStart, onD
           <meshBasicMaterial color="#ffffff" transparent opacity={0.5} />
         </mesh>
       )}
-      {onMoveLeft && (
-        <mesh 
-          position={[0, 0, 1.1]}
-          onClick={(e) => {
-            e.stopPropagation();
-            onClick();
-          }}
-        >
-          <sphereGeometry args={[0.15, 16, 16]} />
-          <meshBasicMaterial color="#ffffff" transparent opacity={0.7} />
-        </mesh>
-      )}
+      <mesh 
+        position={[0, 0, 1.1]}
+        onClick={(e) => {
+          e.stopPropagation();
+          onClick();
+        }}
+      >
+        <sphereGeometry args={[0.15, 16, 16]} />
+        <meshBasicMaterial color="#ffffff" transparent opacity={0.7} />
+      </mesh>
     </group>
   );
 }
