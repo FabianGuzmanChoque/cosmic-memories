@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, Stars, Text } from '@react-three/drei';
+import { OrbitControls, Stars, Text, Billboard } from '@react-three/drei';
 import { motion } from 'framer-motion';
 import { X, Link, Trash2, Plus, Heart, Volume2, VolumeX, Edit } from 'lucide-react';
 
@@ -339,18 +339,18 @@ function Planet({ position, color, onClick, image, orbitRadius, onDragStart, onD
       </mesh>
       
       {title && (
-        <Text
-          position={[0, 1.8, 0]}
-          fontSize={0.5}
-          color="white"
-          anchorX="center"
-          anchorY="middle"
-          outlineWidth={0.03}
-          outlineColor="#000000"
-          billboard
-        >
-          {title}
-        </Text>
+        <Billboard position={[position[0], position[1] + 1.8, position[2]]}>
+          <Text
+            fontSize={0.5}
+            color="white"
+            anchorX="center"
+            anchorY="middle"
+            outlineWidth={0.03}
+            outlineColor="#000000"
+          >
+            {title}
+          </Text>
+        </Billboard>
       )}
       
       {onMoveLeft && (
