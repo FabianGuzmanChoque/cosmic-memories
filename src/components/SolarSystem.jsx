@@ -725,15 +725,13 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
   const copyShareLink = useCallback(() => {
     const musicToShare = musicUrl && musicUrl.startsWith('http') ? musicUrl : null;
     
-    const validMemories = memories.filter(m => m.title && m.title.trim().length > 2);
-    
     const shareData = {
       type: 'cosmic-memories',
       version: '1.0',
       title: universeTitle || 'Mi Universo de Recuerdos',
       music: musicToShare,
-      memories: validMemories.map(m => ({ 
-        title: m.title, 
+      memories: memories.map(m => ({ 
+        title: m.title || '', 
         date: m.date || '', 
         message: m.message || '',
         orbitRadius: m.orbitRadius || 8,
@@ -743,7 +741,7 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
       }))
     };
     
-    console.log('Valid memories to share:', validMemories.length);
+    console.log('Memories to share:', memories.length);
     
     const jsonStr = JSON.stringify(shareData);
     const encoded = btoa(encodeURIComponent(jsonStr));
