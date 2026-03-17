@@ -1049,13 +1049,28 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
               />
               <motion.button 
                 type="button"
-                onClick={() => setEditingMemory(null)}
+                onClick={() => {
+                  if (!isSharedView) {
+                    const orbitValue = editingMemory.orbitRadius;
+                    const memoryToSave = {
+                      ...editingMemory,
+                      id: editingMemory.id,
+                      orbitRadius: orbitValue ? parseInt(orbitValue) : 8,
+                      orbitAngle: editingMemory.orbitAngle || 0,
+                      color: editingMemory.color || '#ff6b9d'
+                    };
+                    console.log('Guardando desde boton:', memoryToSave);
+                    onUpdateMemory(memoryToSave);
+                    setSelectedMemory(memoryToSave);
+                  }
+                  setEditingMemory(null);
+                }}
                 className="w-full py-3 rounded-xl text-white font-medium flex items-center justify-center gap-2"
-                style={{ background: 'rgba(255,255,255,0.1)' }}
+                style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%)' }}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                {isSharedView ? 'Cerrar' : 'Guardar Cambios'}
+                {isSharedView ? 'Cerrar' : '💾 Guardar Cambios'}
               </motion.button>
             </form>
           </motion.div>
