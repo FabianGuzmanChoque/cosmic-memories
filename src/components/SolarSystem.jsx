@@ -958,12 +958,14 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
             <form onSubmit={(e) => {
               e.preventDefault();
               if (!isSharedView) {
+                const orbitValue = editingMemory.orbitRadius;
                 const memoryToSave = {
                   ...editingMemory,
-                  orbitRadius: editingMemory.orbitRadius || 8,
+                  orbitRadius: orbitValue ? parseInt(orbitValue) : 8,
                   orbitAngle: editingMemory.orbitAngle || 0,
                   color: editingMemory.color || '#ff6b9d'
                 };
+                console.log('Guardando memoria:', memoryToSave);
                 onUpdateMemory(memoryToSave);
                 setSelectedMemory(memoryToSave);
               }
@@ -994,7 +996,15 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
               />
               <select
                 value={editingMemory.orbitRadius || ''}
-                onChange={(e) => !isSharedView && setEditingMemory(prev => ({ ...prev, orbitRadius: parseInt(e.target.value) }))}
+                onChange={(e) => {
+                  if (!isSharedView) {
+                    const value = e.target.value;
+                    setEditingMemory(prev => ({ 
+                      ...prev, 
+                      orbitRadius: value ? parseInt(value) : prev.orbitRadius || 8
+                    }));
+                  }
+                }}
                 className={`w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm ${isSharedView ? 'text-white/70 cursor-not-allowed' : 'text-white'}`}
                 disabled={isSharedView}
               >
