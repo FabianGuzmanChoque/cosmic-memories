@@ -260,10 +260,12 @@ function Planet({ position, color, onClick, image, orbitRadius, onDragEnd }) {
   const handlePointerDown = (e) => {
     e.stopPropagation();
     e.target.setPointerCapture(e.pointerId);
+    setIsDraggingPlanet(true);
   };
 
   const handlePointerUp = (e) => {
     e.stopPropagation();
+    setIsDraggingPlanet(false);
     const x = e.point.x;
     const z = e.point.z;
     const newRadius = Math.sqrt(x * x + z * z);
@@ -382,6 +384,7 @@ function generatePlanetPositions(memories) {
 export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onDeleteMemory, isSharedView = false, sharedTitle = '', sharedMusic = '' }) {
   const [selectedMemory, setSelectedMemory] = useState(null);
   const [editingMemory, setEditingMemory] = useState(null);
+  const [isDraggingPlanet, setIsDraggingPlanet] = useState(false);
   const [showExport, setShowExport] = useState(false);
   const [showAdd, setShowAdd] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -659,8 +662,13 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
               color={memory.color || colors[index % colors.length]}
               image={memory.image}
               orbitRadius={memory.orbitRadius}
-              onClick={() => handlePlanetClick(memory)}
+              onClick={() => {
+                if (!isDraggingPlanet) {
+                  handlePlanetClick(memory);
+                }
+              }}
               onDragEnd={(newRadius, newAngle) => {
+                setIsDraggingPlanet(false);
                 if (!isSharedView) {
                   const updatedMemory = { ...memory, orbitRadius: newRadius, orbitAngle: newAngle };
                   onUpdateMemory(updatedMemory);
@@ -678,6 +686,7 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
         )}
         
         <OrbitControls 
+          enabled={!isDraggingPlanet}
           enablePan={true}
           enableZoom={true}
           enableRotate={true}
