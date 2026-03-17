@@ -227,13 +227,12 @@ function Sun({ onClick }) {
   );
 }
 
-function Planet({ position, color, onClick, image, orbitRadius, onDragEnd }) {
+function Planet({ position, color, onClick, image, orbitRadius, onDragStart, onDragEnd }) {
   const ref = useRef();
   const glowRef = useRef();
   const ringRef = useRef();
-  const groupRef = useRef();
   const orbitRadii = [8, 12, 16, 21, 27, 33, 39];
-  const [isDragging, setIsDragging] = useState(false);
+  const [localDragging, setLocalDragging] = useState(false);
   
   const texture = useMemo(() => {
     if (image) {
@@ -256,7 +255,7 @@ function Planet({ position, color, onClick, image, orbitRadius, onDragEnd }) {
   });
 
   const handleClick = (e) => {
-    if (!isDragging) {
+    if (!localDragging) {
       e.stopPropagation();
       onClick();
     }
@@ -264,12 +263,14 @@ function Planet({ position, color, onClick, image, orbitRadius, onDragEnd }) {
 
   const handlePointerDown = (e) => {
     e.stopPropagation();
-    setIsDragging(true);
+    setLocalDragging(true);
+    if (onDragStart) onDragStart(true);
   };
 
   const handlePointerUp = (e) => {
     e.stopPropagation();
-    setIsDragging(false);
+    setLocalDragging(false);
+    if (onDragStart) onDragStart(false);
     
     const x = e.point.x;
     const z = e.point.z;
@@ -395,6 +396,7 @@ function generatePlanetPositions(memories) {
 export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onDeleteMemory, isSharedView = false, sharedTitle = '', sharedMusic = '' }) {
   const [selectedMemory, setSelectedMemory] = useState(null);
   const [editingMemory, setEditingMemory] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
   const [showExport, setShowExport] = useState(false);
   const [showAdd, setShowAdd] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -673,7 +675,9 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
               image={memory.image}
               orbitRadius={memory.orbitRadius}
               onClick={() => handlePlanetClick(memory)}
+              onDragStart={(dragging) => setIsDragging(dragging)}
               onDragEnd={(newRadius, newAngle) => {
+                setIsDragging(false);
                 if (!isSharedView) {
                   const updatedMemory = { ...memory, orbitRadius: newRadius, orbitAngle: newAngle };
                   onUpdateMemory(updatedMemory);
@@ -691,9 +695,10 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
         )}
         
         <OrbitControls 
-          enablePan={true}
-          enableZoom={true}
-          enableRotate={true}
+          enabled={!isDragging}
+          enablePan={!isDragging}
+          enableZoom={!isDragging}
+          enableRotate={!isDragging}
           minDistance={5}
           maxDistance={150}
           autoRotate={!selectedMemory}
