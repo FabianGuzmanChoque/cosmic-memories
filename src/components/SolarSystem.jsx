@@ -525,7 +525,7 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
     
     if (musicLink.includes('youtube') || musicLink.includes('youtu.be')) {
       const videoId = musicLink.split('v=')[1]?.split('&')[0] || musicLink.split('/').pop();
-      window.open(`https://www.youtube.com/watch?v=${videoId}&autoplay=1`, '_blank');
+      window.open(`https://raw.githubusercontent.com/FabianGuzmanChoque/Music/main/Luna%20-%20Zo%C3%A9%20(Letra_Lyrics)%20(Unplugged)%20-%20Kekx%20Lyrics.mp3`, '_blank');
       setMusicEnabled(true);
       return;
     }
