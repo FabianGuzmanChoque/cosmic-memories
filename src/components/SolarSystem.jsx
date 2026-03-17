@@ -3,6 +3,7 @@ import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Stars, Text, Billboard } from '@react-three/drei';
 import { motion } from 'framer-motion';
+import LZString from 'lz-string';
 import { X, Link, Trash2, Plus, Heart, Volume2, VolumeX, Edit } from 'lucide-react';
 
 function FloatingParticles() {
@@ -744,14 +745,12 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
     console.log('Memories to share:', memories.length);
     
     const jsonStr = JSON.stringify(shareData);
-    const encoded = btoa(encodeURIComponent(jsonStr));
-    const link = `${window.location.origin}?shared=${encoded}`;
+    const compressed = LZString.compressToEncodedURIComponent(jsonStr);
+    const link = `${window.location.origin}?shared=${compressed}`;
     
+    console.log('Original length:', jsonStr.length);
+    console.log('Compressed length:', compressed.length);
     console.log('Link length:', link.length);
-    
-    if (link.length > 8000) {
-      alert('El enlace es muy largo. Usa imágenes más pequeñas o URLs de internet.');
-    }
     
     navigator.clipboard.writeText(link);
     setCopied(true);

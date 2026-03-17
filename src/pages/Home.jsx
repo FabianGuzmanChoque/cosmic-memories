@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import SolarSystem from '../components/SolarSystem';
+import LZString from 'lz-string';
 
 export default function Home() {
   const [memories, setMemories] = useState([]);
@@ -16,7 +17,12 @@ export default function Home() {
     
     if (sharedData) {
       try {
-        const decoded = JSON.parse(decodeURIComponent(atob(sharedData)));
+        const decompressed = LZString.decompressFromEncodedURIComponent(sharedData);
+        if (!decompressed) {
+          console.error('Failed to decompress data');
+          return;
+        }
+        const decoded = JSON.parse(decompressed);
         if (decoded.type === 'cosmic-memories' && decoded.memories) {
           console.log('Shared memories count:', decoded.memories.length);
           const solarSystemScale = [8, 12, 16, 21, 27, 33, 39];
