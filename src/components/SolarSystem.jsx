@@ -123,12 +123,32 @@ function ShootingStarSystem() {
   );
 }
 
-function Sun({ onClick }) {
+function Sun({ onClick, image }) {
   const meshRef = useRef();
   const glowRef = useRef();
   const glow2Ref = useRef();
   const particlesRef = useRef();
   const coronaRef = useRef();
+  const [texture, setTexture] = useState(null);
+  
+  useEffect(() => {
+    if (!image) {
+      setTexture(null);
+      return;
+    }
+    
+    const loader = new THREE.TextureLoader();
+    loader.crossOrigin = 'anonymous';
+    loader.load(
+      image,
+      (loadedTexture) => {
+        loadedTexture.colorSpace = THREE.SRGBColorSpace;
+        setTexture(loadedTexture);
+      },
+      undefined,
+      () => setTexture(null)
+    );
+  }, [image]);
   
   useFrame((state) => {
     const t = state.clock.elapsedTime;
@@ -177,12 +197,16 @@ function Sun({ onClick }) {
     <group onClick={onClick}>
       <mesh ref={meshRef}>
         <sphereGeometry args={[2, 64, 64]} />
-        <meshStandardMaterial 
-          color="#ff6b9d" 
-          emissive="#ff6b9d" 
-          emissiveIntensity={1}
-          roughness={0.2}
-        />
+        {texture ? (
+          <meshBasicMaterial map={texture} />
+        ) : (
+          <meshStandardMaterial 
+            color="#ff6b9d" 
+            emissive="#ff6b9d" 
+            emissiveIntensity={1}
+            roughness={0.2}
+          />
+        )}
       </mesh>
       
       <mesh ref={glowRef}>
@@ -784,11 +808,14 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
         {/* <NebulaClouds /> */}
         {/* <MeteorShower /> */}
         
-        <Sun onClick={() => {
-          if (sunMemory) {
-            handlePlanetClick(sunMemory);
-          }
-        }} />
+        <Sun 
+          onClick={() => {
+            if (sunMemory) {
+              handlePlanetClick(sunMemory);
+            }
+          }}
+          image={sunMemory?.image}
+        />
         
         <ExtraOrbits />
         
