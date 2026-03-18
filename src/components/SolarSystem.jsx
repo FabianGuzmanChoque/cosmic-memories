@@ -562,7 +562,8 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
     }
   };
 
-  const planetMemories = memories.length > 0 && memories[0]?.title === 'El Sol' ? memories.slice(1) : memories;
+  const planetMemories = memories.length > 0 ? memories.slice(1) : [];
+  const sunMemory = memories.length > 0 ? memories[0] : null;
   const planetPositions = useMemo(() => generatePlanetPositions(planetMemories), [planetMemories]);
   
   const colors = ['#ff6b9d', '#c084fc', '#fcd34d', '#60a5fa', '#4ade80', '#fb923c', '#e879f9', '#22d3ee'];
@@ -784,8 +785,8 @@ export default function SolarSystem({ memories, onAddMemory, onUpdateMemory, onD
         {/* <MeteorShower /> */}
         
         <Sun onClick={() => {
-          if (memories.length > 0 && memories[0]?.title !== 'El Sol') {
-            handlePlanetClick(memories[0]);
+          if (sunMemory) {
+            handlePlanetClick(sunMemory);
           }
         }} />
         
